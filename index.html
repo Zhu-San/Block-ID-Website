@@ -3245,7 +3245,14 @@ function downloadQQ() {
   modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
-  setTimeout(() => { openModal(true); }, 600);
+  setTimeout(() => {
+    const lastShow = localStorage.getItem('blockid_license_last_show');
+    const now = Date.now();
+    if (!lastShow || (now - parseInt(lastShow)) > 5 * 60 * 1000) {
+      localStorage.setItem('blockid_license_last_show', now.toString());
+      openModal(true);
+    }
+  }, 600);
 })();
 </script>
 </body>
