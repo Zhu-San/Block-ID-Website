@@ -2469,14 +2469,15 @@ body {
             <span class="mv-tag major">重大更新</span>
             <div class="mv-platforms"><span class="mv-platform">Forge</span><span class="mv-platform">Fabric</span></div>
           </div>
-          <div class="mv-desc">重大版本更新：新增收藏夹/组系统、历史记录功能、翻页功能，删除常用方块自动统计，UI 交互全面升级。</div>
+          <div class="mv-desc">重大版本更新：新增收藏夹/组系统、历史记录功能，删除常用方块自动统计，UI 交互全面升级，替换模式源方块复制优化。</div>
         </div>
         <div class="msection">
           <div class="mtitle"><div class="micon core">⭐</div>收藏夹/组系统</div>
           <ul class="mlist">
-            <li><strong>多组管理</strong>：支持创建多个收藏组，每组独立管理方块列表</li>
+            <li><strong>多组管理</strong>：支持创建、重命名、删除多个收藏组，每组独立管理方块列表</li>
             <li><strong>默认收藏组</strong>：内置"默认收藏"组，开箱即用</li>
             <li><strong>快捷添加</strong>：方块列表右侧点击星标即可添加/移除收藏</li>
+            <li><strong>实时更新</strong>：添加/移除收藏后列表立即刷新，无需重新打开界面</li>
             <li><strong>数据持久化</strong>：收藏数据保存在配置文件中，重启不丢失</li>
           </ul>
         </div>
@@ -2485,17 +2486,17 @@ body {
           <ul class="mlist">
             <li><strong>自动记录</strong>：每次复制 ID 或指令自动记录到历史</li>
             <li><strong>最近20条</strong>：保留最近20条复制记录，方便回溯</li>
+            <li><strong>方块名称显示</strong>：历史记录显示方块中文名而非原始 ID，更直观</li>
             <li><strong>一键重复制</strong>：点击历史记录即可重新复制到剪贴板</li>
             <li><strong>模式标识</strong>：每条记录标注 ID / Set / Replace 模式</li>
           </ul>
         </div>
         <div class="msection">
-          <div class="mtitle"><div class="micon core">📄</div>翻页功能</div>
+          <div class="mtitle"><div class="micon core">🔧</div>替换模式优化</div>
           <ul class="mlist">
-            <li><strong>分页显示</strong>：全部方块列表每页显示18个，避免滚动过长</li>
-            <li><strong>上一页/下一页</strong>：列表底部提供翻页按钮，操作直观</li>
-            <li><strong>页码显示</strong>：列表标题显示当前页码/总页数</li>
-            <li><strong>搜索兼容</strong>：搜索结果同样支持翻页浏览</li>
+            <li><strong>源方块无放置比例</strong>：替换模式下源方块不显示放置比例滑块，符合 WorldEdit 语义</li>
+            <li><strong>复制不带比例</strong>：源方块复制结果仅包含 ID 和属性，不带百分比前缀</li>
+            <li><strong>目标方块保留比例</strong>：目标方块仍支持放置比例设置，格式为 <code>50%minecraft:stone</code></li>
           </ul>
         </div>
         <div class="msection">
@@ -2503,7 +2504,17 @@ body {
           <ul class="mlist">
             <li><strong>标签切换</strong>：中列增加"收藏夹 / 历史记录"标签切换</li>
             <li><strong>删除常用方块</strong>：移除原有的常用方块自动统计功能</li>
-            <li><strong>空间优化</strong>：翻页机制大幅提升大方块库的浏览效率</li>
+            <li><strong>滚轮浏览</strong>：全部方块列表使用滚轮滚动，操作流畅</li>
+            <li><strong>布局稳定</strong>：收藏夹区域组名、按钮、分割线、列表布局经过多轮优化</li>
+          </ul>
+        </div>
+        <div class="msection">
+          <div class="mtitle"><div class="micon core">🐞</div>Bug 修复</div>
+          <ul class="mlist">
+            <li><strong>修复收藏夹列表不刷新</strong>：添加/移除收藏后列表立即更新</li>
+            <li><strong>修复源方块复制带比例</strong>：替换模式源方块复制结果不再包含百分比</li>
+            <li><strong>修复历史记录显示 ID</strong>：改为显示方块中文名</li>
+            <li><strong>修复列表消失问题</strong>：修复非替换模式下中列列表异常消失的 Bug</li>
           </ul>
         </div>
       </div>
