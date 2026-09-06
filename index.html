@@ -1,0 +1,3135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Block ID — 方块ID · WorldEdit 指令 · 智能搜索</title>
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap">
+<style>
+/* ============ 全局变量与重置 ============ */
+:root {
+  --bg-deep: #eef1f5;
+  --bg-panel: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f8fafc;
+  --border: #e2e8f0;
+  --border-light: #cbd5e1;
+  --green: #16a34a;
+  --green-dim: #15803d;
+  --gold: #d97706;
+  --gold-dim: #b45309;
+  --cyan: #0284c7;
+  --cyan-dim: #0369a1;
+  --red: #dc2626;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --shadow-sm: 0 1px 3px rgba(15,23,42,0.06);
+  --shadow-md: 0 4px 16px rgba(15,23,42,0.08);
+  --shadow-lg: 0 12px 40px rgba(15,23,42,0.1);
+  --font-mono: 'JetBrains Mono', 'Consolas', 'Courier New', monospace;
+  --font-sans: 'Noto Sans SC', 'Microsoft YaHei', 'PingFang SC', sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  line-height: 1.7;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  /* 现代建筑网格底纹（类似建筑图纸/幕墙分格） */
+  background-image:
+    linear-gradient(rgba(15,23,42,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15,23,42,0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+::selection { background: var(--cyan); color: #fff; }
+
+/* ============ 方块粒子背景 Canvas ============ */
+#particle-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* 鼠标跟随光晕 */
+#cursor-glow {
+  position: fixed;
+  width: 500px; height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(2,132,199,0.08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.3s;
+}
+
+/* ============ 导航栏 ============ */
+.navbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 18px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  background: transparent;
+}
+.navbar.scrolled {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  padding: 12px 48px;
+}
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+.nav-logo-icon {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--cyan), var(--cyan-dim));
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 18px;
+  color: #fff;
+  box-shadow: 0 0 20px rgba(2,132,199,0.25);
+  animation: logoPulse 3s ease-in-out infinite;
+}
+@keyframes logoPulse {
+  0%, 100% { box-shadow: 0 0 16px rgba(2,132,199,0.2); }
+  50% { box-shadow: 0 0 30px rgba(2,132,199,0.4); }
+}
+.nav-logo-text {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--text-primary);
+  letter-spacing: 0.5px;
+}
+.nav-logo-text span { color: var(--cyan); }
+.nav-links {
+  display: flex;
+  gap: 36px;
+  list-style: none;
+}
+.nav-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.3s;
+  position: relative;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px; left: 0;
+  width: 0; height: 2px;
+  background: var(--cyan);
+  transition: width 0.3s;
+}
+.nav-links a:hover { color: var(--cyan); }
+.nav-links a:hover::after { width: 100%; }
+.nav-version {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  padding: 5px 12px;
+  border-radius: 4px;
+  background: rgba(217,119,6,0.08);
+}
+
+/* ============ Hero 区 ============ */
+.hero {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 120px 24px 80px;
+  background-image:
+    linear-gradient(180deg, rgba(238,241,245,0.72) 0%, rgba(238,241,245,0.85) 50%, rgba(238,241,245,0.97) 100%),
+    url('https://aka.doubaocdn.com/s/LMigkzCmJs');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(ellipse at center, rgba(255,255,255,0.3) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: -1;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--cyan);
+  border: 1px solid rgba(2,132,199,0.3);
+  background: rgba(2,132,199,0.06);
+  padding: 8px 20px;
+  border-radius: 100px;
+  margin-bottom: 32px;
+  opacity: 0;
+  animation: fadeInUp 0.8s 0.2s forwards;
+  box-shadow: var(--shadow-sm);
+}
+.hero-badge .dot {
+  width: 8px; height: 8px;
+  background: var(--cyan);
+  border-radius: 50%;
+  animation: blink 1.5s infinite;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.hero-title {
+  font-family: var(--font-mono);
+  font-size: clamp(48px, 8vw, 96px);
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 8px;
+  opacity: 0;
+  animation: fadeInUp 0.8s 0.4s forwards;
+  text-shadow: 0 2px 20px rgba(255,255,255,0.6);
+}
+.hero-title .block-text {
+  background: linear-gradient(135deg, var(--cyan) 0%, var(--green) 50%, var(--cyan) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientFlow 4s linear infinite;
+}
+@keyframes gradientFlow {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+.hero-subtitle {
+  font-size: clamp(18px, 2.5vw, 28px);
+  color: var(--text-primary);
+  font-weight: 400;
+  margin-bottom: 16px;
+  opacity: 0;
+  animation: fadeInUp 0.8s 0.6s forwards;
+  text-shadow: 0 1px 12px rgba(255,255,255,0.8);
+}
+.hero-slogan {
+  font-family: var(--font-mono);
+  font-size: clamp(14px, 1.5vw, 18px);
+  color: var(--gold-dim);
+  margin-bottom: 48px;
+  opacity: 0;
+  animation: fadeInUp 0.8s 0.8s forwards;
+  text-shadow: 0 1px 8px rgba(255,255,255,0.7);
+  font-weight: 500;
+}
+.hero-slogan::before { content: '> '; color: var(--cyan); }
+.hero-slogan .cursor {
+  display: inline-block;
+  width: 10px;
+  height: 20px;
+  background: var(--gold);
+  margin-left: 4px;
+  vertical-align: middle;
+  animation: cursorBlink 0.8s step-end infinite;
+}
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 48px;
+  opacity: 0;
+  animation: fadeInUp 0.8s 1s forwards;
+}
+.hero-tag {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 4px;
+  border: 1px solid var(--border-light);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  transition: all 0.3s;
+  box-shadow: var(--shadow-sm);
+}
+.hero-tag:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.hero-tag.highlight {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: rgba(2,132,199,0.06);
+}
+.hero-tag.warn {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(217,119,6,0.06);
+}
+.hero-cta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+  opacity: 0;
+  animation: fadeInUp 0.8s 1.2s forwards;
+}
+.btn {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 700;
+  padding: 16px 36px;
+  border-radius: 8px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--cyan), var(--cyan-dim));
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(2,132,199,0.3);
+}
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 32px rgba(2,132,199,0.4);
+}
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.5s;
+}
+.btn-primary:hover::before { left: 100%; }
+.btn-secondary {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+}
+.btn-secondary:hover {
+  border-color: var(--green);
+  color: var(--green);
+  background: rgba(22,163,74,0.04);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-light);
+}
+.btn-ghost:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(251,191,36,0.05);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+/* 滚动提示 */
+.scroll-hint {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  opacity: 0;
+  animation: fadeInUp 0.8s 1.8s forwards;
+  z-index: 1;
+  transition: opacity 0.4s, transform 0.4s;
+  pointer-events: none;
+}
+.scroll-hint.hidden {
+  opacity: 0 !important;
+  transform: translateX(-50%) translateY(10px);
+}
+.scroll-hint .mouse {
+  width: 24px; height: 38px;
+  border: 2px solid var(--text-muted);
+  border-radius: 12px;
+  position: relative;
+}
+.scroll-hint .mouse::after {
+  content: '';
+  position: absolute;
+  top: 6px; left: 50%;
+  transform: translateX(-50%);
+  width: 4px; height: 8px;
+  background: var(--green);
+  border-radius: 2px;
+  animation: scrollWheel 1.5s infinite;
+}
+@keyframes scrollWheel {
+  0% { opacity: 1; top: 6px; }
+  100% { opacity: 0; top: 20px; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============ 快速跳转卡 ============ */
+.quick-nav {
+  position: relative;
+  z-index: 3;
+  max-width: 1280px;
+  margin: -50px auto 0;
+  padding: 0 48px;
+}
+.quick-nav-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+.quick-nav-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px 18px;
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+.quick-nav-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--cyan), var(--green));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s;
+}
+.quick-nav-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--border-light);
+}
+.quick-nav-card:hover::before {
+  transform: scaleX(1);
+}
+.quick-nav-icon {
+  width: 42px; height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2px;
+}
+.quick-nav-icon svg { width: 22px; height: 22px; }
+.quick-nav-title {
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.quick-nav-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.quick-nav-arrow {
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: all 0.3s;
+  color: var(--cyan);
+  flex-shrink: 0;
+}
+.quick-nav-card:hover .quick-nav-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ============ 通用 Section ============ */
+.section {
+  position: relative;
+  z-index: 2;
+  padding: 120px 48px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+.section-header {
+  text-align: center;
+  margin-bottom: 72px;
+}
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--cyan);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-label::before,
+.section-label::after {
+  content: '';
+  width: 32px; height: 1px;
+  background: var(--cyan);
+  opacity: 0.5;
+}
+.section-title {
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 900;
+  margin-bottom: 16px;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+.section-desc {
+  font-size: 17px;
+  color: var(--text-secondary);
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* 滚动入场动画 */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
+
+/* ============ 模组简介区 ============ */
+.intro-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+.intro-text p {
+  font-size: 17px;
+  color: var(--text-secondary);
+  line-height: 1.9;
+  margin-bottom: 20px;
+}
+.intro-text p strong {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+.intro-text .highlight-green { color: var(--green); font-weight: 700; }
+.intro-text .highlight-gold { color: var(--gold); font-weight: 700; }
+.intro-text .highlight-cyan { color: var(--cyan); font-weight: 700; }
+
+.intro-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px 24px;
+  text-align: center;
+  transition: all 0.4s;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--cyan), var(--green));
+  transform: scaleX(0);
+  transition: transform 0.4s;
+}
+.stat-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--border-light);
+  box-shadow: var(--shadow-lg);
+}
+.stat-card:hover::before { transform: scaleX(1); }
+.stat-number {
+  font-family: var(--font-mono);
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--cyan);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.stat-card:nth-child(2) .stat-number { color: var(--gold); }
+.stat-card:nth-child(3) .stat-number { color: var(--green); }
+.stat-card:nth-child(4) .stat-number { color: var(--cyan); }
+.stat-label {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+/* ============ 功能卡片区 ============ */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.feature-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 36px 28px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.feature-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(2,132,199,0.06), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.feature-card:hover::after { opacity: 1; }
+.feature-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--border-light);
+  box-shadow: var(--shadow-lg);
+}
+.feature-icon {
+  width: 56px; height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  transition: transform 0.4s;
+}
+.feature-card:hover .feature-icon {
+  transform: rotate(-8deg) scale(1.1);
+}
+.feature-icon.green {
+  background: rgba(22,163,74,0.1);
+  border: 1px solid rgba(22,163,74,0.25);
+}
+.feature-icon.gold {
+  background: rgba(217,119,6,0.1);
+  border: 1px solid rgba(217,119,6,0.25);
+}
+.feature-icon.cyan {
+  background: rgba(2,132,199,0.1);
+  border: 1px solid rgba(2,132,199,0.25);
+}
+.feature-icon svg {
+  width: 28px; height: 28px;
+}
+.feature-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-primary);
+}
+.feature-title .key-hint {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--bg-deep);
+  border: 1px solid var(--border-light);
+  color: var(--gold);
+  font-weight: 500;
+}
+.feature-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+.feature-desc code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--bg-deep);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--cyan-dim);
+  border: 1px solid var(--border);
+}
+
+/* ============ 性能数据区 ============ */
+.perf-section {
+  background: linear-gradient(180deg, transparent, rgba(2,132,199,0.04), transparent);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.perf-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  text-align: center;
+}
+.perf-item {
+  padding: 32px 16px;
+}
+.perf-value {
+  font-family: var(--font-mono);
+  font-size: clamp(36px, 5vw, 56px);
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, var(--cyan), var(--green));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.perf-value .unit {
+  font-size: 0.4em;
+  -webkit-text-fill-color: var(--text-secondary);
+  font-weight: 500;
+}
+.perf-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+.perf-bar {
+  width: 60px;
+  height: 3px;
+  background: var(--border);
+  margin: 16px auto 0;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.perf-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--cyan), var(--green));
+  border-radius: 2px;
+  width: 0;
+  transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============ 安装指南区 ============ */
+.install-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 48px;
+}
+.install-tab {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 700;
+  padding: 12px 32px;
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: var(--shadow-sm);
+}
+.install-tab.active {
+  background: linear-gradient(135deg, var(--cyan), var(--cyan-dim));
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 4px 16px rgba(2,132,199,0.3);
+}
+.install-tab:hover:not(.active) {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+.install-content {
+  display: none;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.install-content.active {
+  display: block;
+  animation: fadeInUp 0.5s forwards;
+}
+.install-step {
+  display: flex;
+  gap: 24px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--border);
+  align-items: flex-start;
+  transition: all 0.3s;
+}
+.install-step:last-child { border-bottom: none; }
+.install-step:hover {
+  padding-left: 12px;
+}
+.step-number {
+  flex-shrink: 0;
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 18px;
+  color: var(--cyan);
+  transition: all 0.3s;
+  box-shadow: var(--shadow-sm);
+}
+.install-step:hover .step-number {
+  background: var(--cyan);
+  color: #fff;
+  transform: scale(1.1);
+}
+.step-content h4 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--text-primary);
+}
+.step-content p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+.step-content code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--bg-deep);
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: var(--gold);
+  border: 1px solid var(--border);
+}
+
+/* ============ 下载来源卡片 ============ */
+.download-card {
+  max-width: 720px;
+  margin: 0 auto 48px;
+  background: linear-gradient(135deg, rgba(2,132,199,0.06), rgba(22,163,74,0.04));
+  border: 1px solid rgba(2,132,199,0.25);
+  border-radius: 16px;
+  padding: 32px 36px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s;
+  box-shadow: var(--shadow-sm);
+}
+.download-card::before {
+  content: '';
+  position: absolute;
+  top: -50%; right: -20%;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(2,132,199,0.1), transparent 70%);
+  pointer-events: none;
+}
+.download-card:hover {
+  border-color: rgba(2,132,199,0.4);
+  box-shadow: var(--shadow-lg);
+}
+.download-card-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.download-card-icon {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--cyan), var(--cyan-dim));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(2,132,199,0.25);
+}
+.download-card-icon svg { width: 26px; height: 26px; }
+.download-card-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.download-card-title .badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: var(--gold);
+  color: #fff;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-left: 10px;
+  vertical-align: middle;
+  font-weight: 700;
+}
+.download-qq-group {
+  font-family: var(--font-mono);
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--cyan);
+  letter-spacing: 2px;
+  margin: 8px 0 16px;
+  text-shadow: 0 0 30px rgba(2,132,199,0.2);
+  animation: qqPulse 2.5s ease-in-out infinite;
+}
+@keyframes qqPulse {
+  0%, 100% { text-shadow: 0 0 16px rgba(2,132,199,0.15); }
+  50% { text-shadow: 0 0 36px rgba(2,132,199,0.35); }
+}
+.download-join-tip {
+  font-size: 13px;
+  color: #94a3b8;
+  background: rgba(251,191,36,0.08);
+  border: 1px solid rgba(251,191,36,0.2);
+  border-radius: 8px;
+  padding: 8px 14px;
+  margin: 0 0 16px;
+  text-align: center;
+}
+.download-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+}
+.download-meta-item {
+  font-size: 13px;
+  color: var(--text-secondary);
+  background: rgba(255,255,255,0.7);
+  border: 1px solid var(--border);
+  padding: 8px 14px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.download-meta-item .meta-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--gold);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.download-meta-item .meta-value {
+  color: var(--text-primary);
+}
+.download-note {
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  padding-top: 16px;
+  border-top: 1px dashed var(--border);
+}
+.download-note strong { color: var(--cyan); font-weight: 600; }
+.open-source-notice {
+  margin-top: 14px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, rgba(251,191,36,0.1), rgba(245,158,11,0.05));
+  border: 1px solid rgba(251,191,36,0.28);
+  border-radius: 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.open-source-notice .notice-icon {
+  flex-shrink: 0;
+  width: 20px; height: 20px;
+  color: #fbbf24;
+  margin-top: 2px;
+}
+.open-source-notice .notice-text {
+  font-size: 13px;
+  line-height: 1.65;
+  color: #c8c0a8;
+}
+.open-source-notice .notice-text strong { color: #fbbf24; font-weight: 600; }
+.download-click-hint {
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, rgba(2,132,199,0.08), rgba(22,163,74,0.06));
+  border: 1px dashed rgba(2,132,199,0.35);
+  border-radius: 10px;
+  font-size: 13px;
+  color: var(--cyan);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  animation: hintPulse 2s ease-in-out infinite;
+}
+.download-click-hint:hover {
+  background: linear-gradient(135deg, rgba(2,132,199,0.14), rgba(22,163,74,0.1));
+  border-color: rgba(2,132,199,0.6);
+  transform: translateY(-1px);
+}
+.download-click-hint:active {
+  transform: scale(0.97);
+}
+.download-click-hint .hint-icon {
+  display: inline-flex;
+  animation: handTap 1.2s ease-in-out infinite;
+}
+@keyframes hintPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(2,132,199,0.15); }
+  50% { box-shadow: 0 0 0 8px rgba(2,132,199,0); }
+}
+@keyframes handTap {
+  0%, 100% { transform: translateY(0) scale(1); }
+  40% { transform: translateY(-3px) scale(1.15); }
+  60% { transform: translateY(0) scale(0.95); }
+}
+
+/* ============ Toast 提示 ============ */
+.toast-overlay {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%) translateY(150%);
+  z-index: 9999;
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+}
+.toast-overlay.show {
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+.toast {
+  background: rgba(15, 23, 42, 0.96);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 16px 50px rgba(0,0,0,0.35);
+  min-width: 380px;
+  max-width: 92vw;
+}
+.toast-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0284c7, #0ea5e9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(2,132,199,0.4);
+}
+.toast-icon svg { width: 24px; height: 24px; }
+.toast-content { flex: 1; min-width: 0; }
+.toast-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 3px;
+}
+.toast-desc {
+  font-size: 12px;
+  color: #94a3b8;
+  font-family: var(--font-mono);
+}
+.toast-desc .groupId {
+  color: #4ade80;
+  font-weight: 700;
+}
+.toast-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.toast-btn {
+  padding: 9px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  font-family: var(--font-sans);
+  white-space: nowrap;
+}
+.toast-btn.primary {
+  background: linear-gradient(135deg, #0284c7, #0ea5e9);
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(2,132,199,0.3);
+}
+.toast-btn.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(2,132,199,0.45);
+}
+.toast-btn.secondary {
+  background: rgba(255,255,255,0.08);
+  color: #e2e8f0;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+.toast-btn.secondary:hover {
+  background: rgba(255,255,255,0.14);
+}
+.toast-close {
+  position: absolute;
+  top: 10px; right: 12px;
+  width: 22px; height: 22px;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  font-size: 16px;
+  line-height: 1;
+}
+.toast-close:hover {
+  background: rgba(255,255,255,0.1);
+  color: #e2e8f0;
+}
+
+/* ============ 版本历史 ============ */
+.version-history {
+  max-width: 720px;
+  margin: 0 auto 48px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px 32px;
+  box-shadow: var(--shadow-sm);
+}
+.version-history-title {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--text-secondary);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.version-history-title::before {
+  content: '';
+  width: 4px; height: 16px;
+  background: var(--gold);
+  border-radius: 2px;
+}
+.version-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.version-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  transition: all 0.3s;
+}
+.version-item:last-child { border-bottom: none; }
+.version-item:hover { padding-left: 8px; }
+.version-number {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 700;
+  min-width: 110px;
+  color: var(--text-primary);
+}
+.version-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.version-tag.beta {
+  background: rgba(22,163,74,0.12);
+  color: var(--green);
+  border: 1px solid rgba(22,163,74,0.3);
+}
+.version-tag.release {
+  background: rgba(59,130,246,0.12);
+  color: #3b82f6;
+  border: 1px solid rgba(59,130,246,0.3);
+}
+.version-tag.alpha {
+  background: rgba(220,38,38,0.08);
+  color: var(--red);
+  border: 1px solid rgba(220,38,38,0.25);
+}
+.version-tag.latest {
+  background: var(--gold);
+  color: #fff;
+  border: 1px solid var(--gold);
+}
+.version-platforms {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+}
+.version-platform {
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg-deep);
+}
+.version-platform.forge { color: var(--cyan); border-color: rgba(2,132,199,0.3); }
+.version-platform.fabric { color: var(--gold); border-color: rgba(217,119,6,0.3); }
+.version-platform.none { color: var(--text-muted); opacity: 0.5; }
+.version-status {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.version-status.recommended { color: var(--green); font-weight: 600; }
+.version-status.deprecated { color: var(--red); font-size: 11px; }
+.version-divider {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 14px 0 8px;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.version-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.version-footnote {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--border);
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+.version-footnote strong { color: var(--gold); font-weight: 600; }
+
+/* ============ 更新日志弹窗 ============ */
+.changelog-link-btn { color: var(--accent); }
+.nav-changelog-link { color: var(--accent-2, var(--text-secondary)); position: relative; }
+.changelog-badge {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.5px;
+  background: var(--gold); color: #0b0e14; padding: 1px 6px; border-radius: 8px;
+  vertical-align: super; margin-left: 2px; animation: badgePulse 2s infinite;
+}
+@keyframes badgePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(251,191,36,0.5); }
+  50% { box-shadow: 0 0 0 5px rgba(251,191,36,0); }
+}
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(5,7,12,0.78); backdrop-filter: blur(10px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+  padding: 20px;
+}
+.modal-overlay.open { opacity: 1; pointer-events: auto; }
+.modal-box {
+  width: min(880px, 94vw); max-height: 86vh;
+  background: #161a24;
+  border: 1px solid #2a3145; border-radius: 18px;
+  display: flex; flex-direction: column; overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+  transform: translateY(24px) scale(0.97); transition: transform 0.35s cubic-bezier(0.22,1,0.36,1);
+}
+.modal-overlay.open .modal-box { transform: translateY(0) scale(1); }
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 26px; border-bottom: 1px solid #2a3145;
+  background: linear-gradient(135deg, rgba(74,138,213,0.1), transparent);
+}
+.modal-header-title { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 10px; color: #e8eaf0; }
+.modal-header-title .rocket { font-size: 20px; }
+.modal-close {
+  width: 34px; height: 34px; border-radius: 10px;
+  border: 1px solid #2a3145; background: #10131c;
+  color: #9aa3b8; font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.modal-close:hover { color: #f87171; border-color: #f87171; transform: rotate(90deg); }
+.modal-tabs {
+  display: flex; gap: 8px; padding: 14px 26px 0;
+  border-bottom: 1px solid #2a3145; flex-wrap: wrap;
+}
+.modal-tab {
+  padding: 8px 18px; border-radius: 9px 9px 0 0;
+  border: 1px solid transparent; background: transparent;
+  color: #6b7388; font-size: 13.5px; cursor: pointer;
+  transition: all 0.2s; font-weight: 500; border-bottom: 2px solid transparent;
+}
+.modal-tab:hover { color: #e8eaf0; background: rgba(74,138,213,0.06); }
+.modal-tab.active {
+  color: #6ba8f0; border-color: #2a3145; border-bottom-color: #4a8ad5;
+  background: rgba(74,138,213,0.08); font-weight: 600;
+}
+.modal-tab .tag {
+  font-size: 9.5px; padding: 1px 6px; border-radius: 5px;
+  background: rgba(74,138,213,0.18); color: #6ba8f0; margin-left: 5px; font-weight: 700;
+}
+.modal-tab .tag.latest { background: #fbbf24; color: #0b0e14; }
+.modal-body {
+  flex: 1; overflow-y: auto; padding: 24px 26px 30px;
+  background: #161a24;
+}
+.modal-body::-webkit-scrollbar { width: 6px; }
+.modal-body::-webkit-scrollbar-thumb { background: #2a3145; border-radius: 3px; }
+.modal-body::-webkit-scrollbar-track { background: transparent; }
+.mpanel { display: none; animation: mfadeIn 0.3s ease; }
+.mpanel.active { display: block; }
+@keyframes mfadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.mv-header {
+  background: #10131c; border: 1px solid #2a3145;
+  border-radius: 14px; padding: 22px 26px; margin-bottom: 20px; position: relative; overflow: hidden;
+}
+.mv-header::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, #4a8ad5, #a78bfa);
+}
+.mv-header.latest::before { background: linear-gradient(90deg, #4ade80, #38bdf8); }
+.mv-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.mv-title { font-size: 22px; font-weight: 800; color: #e8eaf0; }
+.mv-tag {
+  font-size: 10px; padding: 2px 9px; border-radius: 6px; font-weight: 700; letter-spacing: 0.5px;
+}
+.mv-tag.beta { background: rgba(251,191,36,0.14); color: #fbbf24; border: 1px solid rgba(251,191,36,0.35); }
+.mv-tag.release { background: rgba(59,130,246,0.14); color: #3b82f6; border: 1px solid rgba(59,130,246,0.35); }
+.mv-tag.alpha { background: rgba(167,139,250,0.14); color: #a78bfa; border: 1px solid rgba(167,139,250,0.35); }
+.mv-tag.hot { background: rgba(56,189,248,0.14); color: #38bdf8; border: 1px solid rgba(56,189,248,0.35); }
+.mv-tag.latest { background: rgba(74,222,128,0.14); color: #4ade80; border: 1px solid rgba(74,222,128,0.35); }
+.mv-platforms { margin-left: auto; display: flex; gap: 6px; }
+.mv-platform {
+  font-size: 10.5px; padding: 2px 9px; border-radius: 6px;
+  background: #1c2130; color: #9aa3b8; border: 1px solid #2a3145;
+}
+.mv-desc { color: #9aa3b8; font-size: 14px; line-height: 1.7; }
+.msection {
+  background: #1c2130; border: 1px solid #2a3145;
+  border-radius: 13px; padding: 20px 24px; margin-bottom: 16px;
+}
+.mtitle {
+  font-size: 15.5px; font-weight: 700; margin-bottom: 12px;
+  display: flex; align-items: center; gap: 9px; color: #e8eaf0;
+}
+.micon {
+  width: 26px; height: 26px; border-radius: 7px; font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+}
+.micon.ui { background: rgba(56,189,248,0.13); }
+.micon.core { background: rgba(74,138,213,0.13); }
+.micon.fix { background: rgba(248,113,113,0.13); }
+.micon.tech { background: rgba(167,139,250,0.13); }
+.mlist { list-style: none; }
+.mlist li {
+  padding: 7px 0 7px 22px; position: relative;
+  color: #c8cdd8; font-size: 13.5px; line-height: 1.65;
+  border-bottom: 1px solid rgba(42,49,69,0.6);
+}
+.mlist li:last-child { border-bottom: none; }
+.mlist li::before {
+  content: ''; position: absolute; left: 3px; top: 15px;
+  width: 5px; height: 5px; border-radius: 50%; background: #4a8ad5;
+}
+.mlist li code {
+  background: #10131c; padding: 1px 6px; border-radius: 4px;
+  font-size: 12px; color: #6ba8f0; font-family: "Cascadia Code", "Fira Code", monospace;
+}
+.mlist li strong { color: #e8eaf0; font-weight: 600; }
+.mlist li .sub { display: block; padding-left: 14px; color: #8a92a8; font-size: 13px; }
+.mtimeline { position: relative; padding-left: 28px; }
+.mtimeline::before {
+  content: ''; position: absolute; left: 7px; top: 10px; bottom: 10px; width: 2px;
+  background: linear-gradient(to bottom, #4a8ad5, #2a3145);
+}
+.mtl-item {
+  position: relative; padding: 12px 18px; margin-bottom: 10px;
+  background: #1c2130; border: 1px solid #2a3145; border-radius: 10px;
+}
+.mtl-item::before {
+  content: ''; position: absolute; left: -25px; top: 17px;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: #4a8ad5; border: 3px solid #161a24;
+  box-shadow: 0 0 0 2px #4a8ad5;
+}
+.mtl-version { font-weight: 700; font-size: 14px; margin-bottom: 3px; color: #e8eaf0; }
+.mtl-desc { color: #6b7388; font-size: 12.5px; }
+@media (max-width: 640px) {
+  .modal-box { max-height: 92vh; }
+  .mv-title { font-size: 17px; }
+  .mv-platforms { margin-left: 0; }
+  .modal-body { padding: 16px; }
+  .msection { padding: 16px; }
+}
+
+/* Hero 区闭源提示 */
+.hero-open-notice {
+  margin-top: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 22px;
+  background: linear-gradient(135deg, rgba(30,25,10,0.88), rgba(45,35,12,0.82));
+  border: 1px solid rgba(251,191,36,0.55);
+  border-radius: 22px;
+  font-size: 13.5px;
+  color: #f5f0e0;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(251,191,36,0.15);
+  opacity: 0;
+  animation: fadeInUp 0.8s 1.2s forwards;
+}
+.hero-open-notice strong { color: #fcd34d; font-weight: 700; }
+.hero-open-notice .notice-dot {
+  width: 7px; height: 7px;
+  background: #fcd34d;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 10px rgba(252,211,77,0.8);
+  animation: noticePulse 2s ease-in-out infinite;
+}
+@keyframes noticePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+/* Hero 区下载提示 */
+.hero-download-hint {
+  margin-top: 28px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-secondary);
+  opacity: 0;
+  animation: fadeInUp 0.8s 1.4s forwards;
+}
+.hero-download-hint .qq-num {
+  color: var(--cyan);
+  font-weight: 700;
+  font-size: 15px;
+}
+
+/* ============ 终端演示区 ============ */
+.terminal-section {
+  max-width: 900px;
+}
+.terminal {
+  background: #0d1117;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  animation: terminalGlow 4s ease-in-out infinite;
+  max-height: 56px;
+  transition: max-height 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.terminal.open {
+  max-height: 750px;
+}
+@keyframes terminalGlow {
+  0%, 100% { box-shadow: 0 12px 40px rgba(2,132,199,0.08); }
+  50% { box-shadow: 0 16px 60px rgba(2,132,199,0.18); }
+}
+/* 扫描线效果 */
+.terminal::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(74,222,128,0.4), transparent);
+  animation: scanLine 3.5s linear infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+@keyframes scanLine {
+  0% { top: 0; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+.terminal-header {
+  display: flex;
+  align-items: center;
+  padding: 14px 20px;
+  background: #161b22;
+  border-bottom: 1px solid var(--border);
+  gap: 8px;
+}
+.terminal-dot {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+.terminal:hover .terminal-dot { transform: scale(1.2); }
+.terminal-dot.red { background: #ff5f56; }
+.terminal-dot.yellow { background: #ffbd2e; }
+.terminal-dot.green {
+  background: #27c93f;
+  animation: dotPulse 2s ease-in-out infinite;
+}
+@keyframes dotPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(39,201,63,0.4); }
+  50% { box-shadow: 0 0 0 6px rgba(39,201,63,0); }
+}
+.terminal-title {
+  margin-left: 12px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.terminal-body {
+  padding: 28px 28px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 2.1;
+  min-height: 460px;
+  position: relative;
+}
+.terminal-line {
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: left center;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.terminal-line.typed {
+  opacity: 1;
+  transform: scaleX(1);
+}
+.terminal-line.stretched {
+  animation: stretchReveal 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes stretchReveal {
+  0% {
+    opacity: 0;
+    transform: scaleX(0);
+    letter-spacing: -0.1em;
+  }
+  55% {
+    opacity: 1;
+    transform: scaleX(1.06);
+    letter-spacing: 0.02em;
+  }
+  100% {
+    opacity: 1;
+    transform: scaleX(1);
+    letter-spacing: normal;
+  }
+}
+.terminal-line .prompt { color: var(--green); }
+.terminal-line .command { color: var(--cyan); }
+.terminal-line .output { color: var(--text-secondary); }
+.terminal-line .success { color: var(--green); }
+.terminal-line .warn { color: var(--gold); }
+.terminal-line .block-id { color: var(--gold); }
+.terminal-cursor {
+  display: inline-block;
+  width: 8px; height: 16px;
+  background: var(--green);
+  vertical-align: middle;
+  animation: cursorBlink 0.8s step-end infinite;
+}
+
+/* ============ FAQ 区 ============ */
+.faq-list {
+  max-width: 800px;
+  margin: 0 auto;
+}
+.faq-item {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  transition: all 0.3s;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+}
+.faq-item:hover { border-color: var(--border-light); box-shadow: var(--shadow-md); }
+.faq-item.open {
+  border-color: rgba(2,132,199,0.4);
+  box-shadow: var(--shadow-md);
+}
+.faq-question {
+  padding: 22px 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-weight: 700;
+  font-size: 16px;
+  transition: color 0.3s;
+  color: var(--text-primary);
+}
+.faq-question:hover { color: var(--cyan); }
+.faq-question .q-label {
+  font-family: var(--font-mono);
+  color: var(--gold);
+  margin-right: 10px;
+  font-size: 14px;
+}
+.faq-toggle {
+  flex-shrink: 0;
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  background: var(--bg-deep);
+  border: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+.faq-item.open .faq-toggle {
+  background: var(--cyan);
+  border-color: var(--cyan);
+  transform: rotate(45deg);
+}
+.faq-toggle svg {
+  width: 14px; height: 14px;
+  stroke: var(--text-secondary);
+  transition: stroke 0.3s;
+}
+.faq-item.open .faq-toggle svg { stroke: #fff; }
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s;
+}
+.faq-item.open .faq-answer {
+  max-height: 300px;
+}
+.faq-answer-inner {
+  padding: 0 28px 24px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.9;
+}
+.faq-answer-inner .a-label {
+  font-family: var(--font-mono);
+  color: var(--green);
+  font-weight: 700;
+  margin-right: 8px;
+}
+.faq-answer-inner code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--bg-deep);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--cyan-dim);
+  border: 1px solid var(--border);
+}
+
+/* ============ 原版介绍图展示区 ============ */
+.preview-section {
+  text-align: center;
+}
+.preview-frame {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  transition: transform 0.4s, box-shadow 0.4s;
+}
+.preview-frame:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 30px 60px rgba(2,132,199,0.12);
+}
+.preview-frame img {
+  width: 100%;
+  display: block;
+}
+.preview-caption {
+  margin-top: 20px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ============ Footer ============ */
+.footer {
+  position: relative;
+  z-index: 2;
+  border-top: 1px solid var(--border);
+  padding: 48px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.6);
+}
+.footer-content {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+.footer-info {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 32px;
+  margin-bottom: 24px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.footer-info span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.footer-info .sep { color: var(--border-light); }
+.footer-bottom {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+.footer-bottom a {
+  color: var(--cyan);
+  text-decoration: none;
+}
+
+/* ============ 响应式 ============ */
+@media (max-width: 968px) {
+  .navbar { padding: 14px 24px; }
+  .nav-links { display: none; }
+  .section { padding: 80px 24px; }
+  .intro-grid { grid-template-columns: 1fr; gap: 32px; }
+  .features-grid { grid-template-columns: 1fr; }
+  .perf-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+  .hero-cta { flex-direction: column; align-items: center; }
+  .btn { width: 100%; max-width: 320px; justify-content: center; }
+  .quick-nav { padding: 0 24px; margin-top: -30px; }
+  .quick-nav-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .quick-nav-card { padding: 16px 14px; }
+  .quick-nav-desc { display: none; }
+}
+@media (max-width: 480px) {
+  .perf-grid { grid-template-columns: 1fr; }
+  .intro-stats { grid-template-columns: 1fr; }
+  .hero-tags { gap: 8px; }
+  .hero-tag { font-size: 11px; padding: 4px 10px; }
+}
+
+/* 尊重 reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  #particle-canvas { display: none; }
+  #cursor-glow { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- 方块粒子背景 -->
+<canvas id="particle-canvas"></canvas>
+<!-- 鼠标光晕 -->
+<div id="cursor-glow"></div>
+
+<!-- ============ 导航栏 ============ -->
+<nav class="navbar" id="navbar">
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon">B</div>
+    <div class="nav-logo-text">Block<span>ID</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#intro">模组介绍</a></li>
+    <li><a href="#features">核心功能</a></li>
+    <li><a href="#install">安装指南</a></li>
+    <li><a href="#faq">常见问题</a></li>
+    <li><a href="#" id="nav-changelog" class="nav-changelog-link">更新日志 <span class="changelog-badge">NEW</span></a></li>
+    <li><a href="#" id="nav-license" class="nav-changelog-link">使用协议</a></li>
+  </ul>
+  <div class="nav-version">v2.0.3.2-Release</div>
+</nav>
+
+<!-- ============ Hero 区 ============ -->
+<section class="hero">
+  <div class="hero-badge">
+    <span class="dot"></span>
+    Client 端 · 纯客户端 · 服务端免装
+  </div>
+  <h1 class="hero-title">
+    <span class="block-text">Block ID</span>
+  </h1>
+  <p class="hero-subtitle">方块ID · WorldEdit 指令 · 智能搜索</p>
+  <p class="hero-slogan" id="hero-slogan">告别手动输入指令，让建筑效率翻倍<span class="cursor"></span></p>
+  <div class="hero-tags">
+    <span class="hero-tag highlight">MC 1.20.1 / 1.19.2</span>
+    <span class="hero-tag">Forge 47.4.10+</span>
+    <span class="hero-tag">Fabric 0.15.11+</span>
+    <span class="hero-tag warn">WorldEdit 必需</span>
+    <span class="hero-tag warn">Cloth Config 必需</span>
+    <span class="hero-tag">9 种语言</span>
+  </div>
+  <div class="hero-cta">
+    <a href="#install" class="btn btn-primary">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      立即安装
+    </a>
+    <a href="#features" class="btn btn-secondary">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      查看功能
+    </a>
+    <a href="#" class="btn btn-ghost hero-changelog-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      更新日志
+    </a>
+  </div>
+  <div class="hero-open-notice">
+    <span class="notice-dot"></span>
+    <span><strong>正式版已提交</strong> · Modrinth / CurseForge 审核中 · 模组源码公开至 GitHub</span>
+  </div>
+  <p class="hero-download-hint">抢先体验版：加入 QQ 群 <span class="qq-num">1121599701</span> 下载 · 平台审核通过后可直接搜索下载</p>
+</section>
+
+<!-- ============ 快速跳转卡 ============ -->
+<div class="quick-nav">
+  <div class="quick-nav-grid">
+    <a href="#features" class="quick-nav-card reveal">
+      <div class="quick-nav-icon" style="background:rgba(2,132,199,0.1);border:1px solid rgba(2,132,199,0.25);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+      </div>
+      <div class="quick-nav-title">核心功能 <svg class="quick-nav-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+      <div class="quick-nav-desc">六大功能详解</div>
+    </a>
+    <a href="#demo" class="quick-nav-card reveal reveal-delay-1">
+      <div class="quick-nav-icon" style="background:rgba(22,163,74,0.1);border:1px solid rgba(22,163,74,0.25);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+      </div>
+      <div class="quick-nav-title">操作演示 <svg class="quick-nav-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+      <div class="quick-nav-desc">终端模拟实操</div>
+    </a>
+    <a href="#install" class="quick-nav-card reveal reveal-delay-2">
+      <div class="quick-nav-icon" style="background:rgba(217,119,6,0.1);border:1px solid rgba(217,119,6,0.25);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </div>
+      <div class="quick-nav-title">安装下载 <svg class="quick-nav-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+      <div class="quick-nav-desc">Forge / Fabric 教程</div>
+    </a>
+    <a href="#faq" class="quick-nav-card reveal reveal-delay-3">
+      <div class="quick-nav-icon" style="background:rgba(100,116,139,0.1);border:1px solid rgba(100,116,139,0.25);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <div class="quick-nav-title">常见问题 <svg class="quick-nav-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+      <div class="quick-nav-desc">FAQ 快速排查</div>
+    </a>
+  </div>
+</div>
+
+<!-- ============ 模组简介区 ============ -->
+<section class="section" id="intro">
+  <div class="section-header reveal">
+    <div class="section-label">ABOUT</div>
+    <h2 class="section-title">为建筑玩家而生</h2>
+    <p class="section-desc">无需再痛苦翻查资料或手动输入复杂的英文 ID</p>
+  </div>
+  <div class="intro-grid">
+    <div class="intro-text reveal">
+      <p>
+        <strong>Block ID</strong> 专为<span class="highlight-green">建筑、地图、红石、生存</span>玩家打造。本模组提供极致直观的<span class="highlight-cyan">图形化管理界面</span>，支持一键生成并复制 WorldEdit 指令。
+      </p>
+      <p>
+        采用<span class="highlight-gold">三列动态布局</span>（全部 / 常用 / 已选），依托强大的多音字智能拼音引擎，让你用中文习惯丝滑操作，显著提升创造与生存效率。
+      </p>
+      <p>
+        从按下 <code style="font-family:var(--font-mono);font-size:13px;background:var(--bg-card);padding:2px 8px;border-radius:4px;color:var(--gold);border:1px solid var(--border)">G</code> 键打开界面，到搜索、选择、复制指令——整个过程不超过 3 秒。
+      </p>
+    </div>
+    <div class="intro-stats">
+      <div class="stat-card reveal reveal-delay-1">
+        <div class="stat-number" data-target="1500" data-suffix="+">0</div>
+        <div class="stat-label">原版+模组方块</div>
+      </div>
+      <div class="stat-card reveal reveal-delay-2">
+        <div class="stat-number" data-target="60">0</div>
+        <div class="stat-label">FPS 流畅滚动</div>
+      </div>
+      <div class="stat-card reveal reveal-delay-3">
+        <div class="stat-number" data-target="9">0</div>
+        <div class="stat-label">支持语言</div>
+      </div>
+      <div class="stat-card reveal reveal-delay-4">
+        <div class="stat-number" data-target="3">0</div>
+        <div class="stat-label">秒完成指令复制</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 核心功能区 ============ -->
+<section class="section" id="features">
+  <div class="section-header reveal">
+    <div class="section-label">FEATURES</div>
+    <h2 class="section-title">六大核心功能</h2>
+    <p class="section-desc">每一个细节都为提升你的建造效率而设计</p>
+  </div>
+  <div class="features-grid">
+    <!-- 功能1 -->
+    <div class="feature-card reveal reveal-delay-1">
+      <div class="feature-icon green">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </div>
+      <h3 class="feature-title">智能拼音搜索</h3>
+      <p class="feature-desc">
+        实现全拼（<code>shitou</code>）、声母缩写（<code>st</code>）、多音字混合（输入 <code>shanzhang</code> 或 <code>shanchang</code> 均可精准搜出"闪长岩"）的无缝匹配。支持中文原名、英文 ID、拼音全拼、拼音首字母混合模糊匹配。
+      </p>
+    </div>
+    <!-- 功能2 -->
+    <div class="feature-card reveal reveal-delay-2">
+      <div class="feature-icon gold">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <h3 class="feature-title">常用方块收藏</h3>
+      <p class="feature-desc">
+        在"全部方块"点击 <code>+</code> 加入常用，点击 <code>−</code> 移除。收藏列表自动保存至本地配置文件 <code>.minecraft/config/block_id.json</code>，即便游戏重开或服务器更换，专属常用列表永远不会丢失。
+      </p>
+    </div>
+    <!-- 功能3 -->
+    <div class="feature-card reveal reveal-delay-3">
+      <div class="feature-icon cyan">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+      </div>
+      <h3 class="feature-title">动态 UI 布局</h3>
+      <p class="feature-desc">
+        全 UI 采用动态坐标计算，无论窗口大小如何拉伸，搜索框、按钮、列表均无重叠。支持可拖拽的可视化滑动条，自动过滤不可放置的非方块物品，原生搜索框拥有半透明多语言占位符。
+      </p>
+    </div>
+    <!-- 功能4 -->
+    <div class="feature-card reveal reveal-delay-1">
+      <div class="feature-icon green">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      </div>
+      <h3 class="feature-title">一键复制 ID <span class="key-hint">C / G</span></h3>
+      <p class="feature-desc">
+        按下 <code>C</code> 键即刻复制手持物品的完整方块 ID（如 <code>minecraft:stone</code>）；按下 <code>G</code> 键秒开主界面。无需切换窗口、无需任何手动操作，点开即用。
+      </p>
+    </div>
+    <!-- 功能5 -->
+    <div class="feature-card reveal reveal-delay-2">
+      <div class="feature-icon gold">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      </div>
+      <h3 class="feature-title">WorldEdit 深度集成</h3>
+      <p class="feature-desc">
+        完美集成 <code>//set</code> 与 <code>//replace</code> 指令。支持方块属性设置（如 <code>minecraft:stone_slab[type=top]</code>）与放置率权重（如 <code>50%stone,50%grass</code>），滑块拖动或 Ctrl+左键精确输入，总和自动归一化。多选后一键生成完整指令并复制到剪贴板。
+      </p>
+    </div>
+    <!-- 功能6 -->
+    <div class="feature-card reveal reveal-delay-3">
+      <div class="feature-icon cyan">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      </div>
+      <h3 class="feature-title">高性能流畅体验</h3>
+      <p class="feature-desc">
+        底层采用视口裁剪（Viewport Culling）技术，只渲染当前屏幕可见区域，并预计算所有方块的拼音缓存。即使在上千种方块的列表中，滚动依然保持 60 FPS 丝滑流畅，彻底告别滚动卡顿。
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 性能数据区 ============ -->
+<section class="perf-section">
+  <div class="section" style="padding-top:80px;padding-bottom:80px;">
+    <div class="perf-grid">
+      <div class="perf-item reveal">
+        <div class="perf-value"><span class="counter" data-target="1500">0</span><span class="unit">+</span></div>
+        <div class="perf-label">非物品方块全覆盖（原版+模组）</div>
+        <div class="perf-bar"><div class="perf-bar-fill" data-width="100"></div></div>
+      </div>
+      <div class="perf-item reveal reveal-delay-1">
+        <div class="perf-value"><span class="counter" data-target="60">0</span><span class="unit"> FPS</span></div>
+        <div class="perf-label">丝滑滚动帧率</div>
+        <div class="perf-bar"><div class="perf-bar-fill" data-width="100"></div></div>
+      </div>
+      <div class="perf-item reveal reveal-delay-2">
+        <div class="perf-value"><span class="counter" data-target="9">0</span><span class="unit"> 种</span></div>
+        <div class="perf-label">多语言支持</div>
+        <div class="perf-bar"><div class="perf-bar-fill" data-width="75"></div></div>
+      </div>
+      <div class="perf-item reveal reveal-delay-3">
+        <div class="perf-value"><span class="counter" data-target="0">0</span><span class="unit"> ms</span></div>
+        <div class="perf-label">服务端延迟（纯客户端）</div>
+        <div class="perf-bar"><div class="perf-bar-fill" data-width="100"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 终端演示区 ============ -->
+<section class="section terminal-section" id="demo">
+  <div class="section-header reveal">
+    <div class="section-label">DEMO</div>
+    <h2 class="section-title">实际操作演示</h2>
+    <p class="section-desc">从打开界面到复制指令，只需几步</p>
+  </div>
+  <div class="terminal reveal">
+    <div class="terminal-header">
+      <span class="terminal-dot red"></span>
+      <span class="terminal-dot yellow"></span>
+      <span class="terminal-dot green"></span>
+      <span class="terminal-title">minecraft — block_id — 80x24</span>
+    </div>
+    <div class="terminal-body" id="terminal-body">
+      <!-- 由 JS 逐行写入 -->
+    </div>
+  </div>
+</section>
+
+<!-- ============ 安装指南区 ============ -->
+<section class="section" id="install">
+  <div class="section-header reveal">
+    <div class="section-label">INSTALL</div>
+    <h2 class="section-title">安装指南</h2>
+    <p class="section-desc">选择你的加载器，三步完成安装</p>
+  </div>
+
+  <!-- 下载来源卡片 -->
+  <div class="download-card reveal">
+    <div class="download-card-header">
+      <div class="download-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0a0e14" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </div>
+      <div class="download-card-title">
+        模组下载<span class="badge">抢先体验</span>
+      </div>
+    </div>
+    <div class="download-qq-group">1121599701</div>
+    <div class="download-join-tip">入群验证请输入：来源 + 目的（如：B站 / 下载模组）</div>
+    <div class="download-meta">
+      <div class="download-meta-item">
+        <span class="meta-label">当前来源</span>
+        <span class="meta-value">官方 QQ 玩家交流群（抢先体验版）</span>
+      </div>
+      <div class="download-meta-item">
+        <span class="meta-label">发布平台</span>
+        <span class="meta-value">Modrinth · CurseForge（审核中）</span>
+      </div>
+      <div class="download-meta-item">
+        <span class="meta-label">源码仓库</span>
+        <span class="meta-value">GitHub</span>
+      </div>
+      <div class="download-meta-item">
+        <span class="meta-label">目的</span>
+        <span class="meta-value">获取模组 jar 文件（Forge / Fabric）</span>
+      </div>
+      <div class="download-meta-item">
+        <span class="meta-label">附加</span>
+        <span class="meta-value">问题反馈 · 建筑交流 · 版本更新通知</span>
+      </div>
+    </div>
+    <div class="download-note">
+      <strong>当前阶段：</strong>模组以抢先体验版形式通过 QQ 群发布，加入群后在群文件中下载对应加载器版本的 jar 包。<strong>平台审核：</strong>4 个版本（Forge/Fabric × 1.20.1/1.19.2）已全部提交至 Modrinth 与 CurseForge 审核，审核通过后可直接在平台搜索 "Block ID" 一键下载。<strong>版本说明：</strong>Modrinth 与 CurseForge 平台版本会落后 QQ 群抢先体验版一个小版本，最新版本优先在 QQ 群发布。请勿从其他非官方渠道获取，以免获得修改或恶意版本。
+    </div>
+    <div class="open-source-notice">
+      <span class="notice-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </span>
+      <div class="notice-text">
+        <strong>开源状态：</strong>模组源码已公开至 GitHub，欢迎查看学习。<strong>使用协议：</strong>允许查看、学习、个人修改，禁止修改后二次发布或商用，禁止移除版权声明。
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:14px;">
+      <button class="btn btn-ghost" id="download-license-btn" style="flex:1;font-size:13px;padding:10px 16px;">
+        📜 查看完整使用协议
+      </button>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:10px;">
+      <a href="https://github.com/Zhu-San/Block_ID" target="_blank" class="btn btn-ghost" style="flex:1;font-size:13px;padding:10px 16px;text-align:center;text-decoration:none;">
+        💻 源代码仓库
+      </a>
+      <button class="btn btn-ghost" disabled style="flex:1;font-size:13px;padding:10px 16px;opacity:0.5;cursor:not-allowed;" title="审核中，暂缓开放">
+        🟠 CurseForge（审核中）
+      </button>
+      <button class="btn btn-ghost" disabled style="flex:1;font-size:13px;padding:10px 16px;opacity:0.5;cursor:not-allowed;" title="审核中，暂缓开放">
+        🟢 Modrinth（审核中）
+      </button>
+    </div>
+    <div class="download-click-hint">
+      <span class="hint-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"/><path d="M10 19v-7.5a1.5 1.5 0 0 1 3 0V15"/><path d="M13 11.5a1.5 1.5 0 0 1 3 0V15"/><path d="M16 11.5a1.5 1.5 0 0 1 3 0V17a5 5 0 0 1-5 5h-2.5a5 5 0 0 1-4.2-2.3L4 17"/></svg>
+      </span>
+      点击卡片 → 自动复制群号并打开 QQ
+    </div>
+  </div>
+
+  <!-- 版本历史 -->
+  <div class="version-history reveal">
+    <div class="version-history-title">Version History · 版本历史</div>
+    <div class="version-list">
+      <div class="version-item">
+        <span class="version-number">v2.0.3.2</span>
+        <span class="version-tag release">Release</span>
+        <span class="version-tag latest">最新</span>
+        <span class="version-tag major">重大更新</span>
+        <span class="version-platforms">
+          <span class="version-platform forge">Forge</span>
+          <span class="version-platform fabric">Fabric</span>
+        </span>
+        <span class="version-status recommended">推荐使用</span>
+      </div>
+      <div class="version-item">
+        <span class="version-number">v2.0.3.1</span>
+        <span class="version-tag release">Release</span>
+        <span class="version-platforms">
+          <span class="version-platform forge">Forge</span>
+          <span class="version-platform fabric">Fabric</span>
+        </span>
+        <span class="version-status deprecated">已被 2.0.3.2 取代</span>
+      </div>
+      <div class="version-item">
+        <span class="version-number">v2.0.3</span>
+        <span class="version-tag release">Release</span>
+        <span class="version-platforms">
+          <span class="version-platform forge">Forge</span>
+          <span class="version-platform fabric">Fabric</span>
+        </span>
+        <span class="version-status deprecated">已被 2.0.3.2 取代</span>
+      </div>
+      <div class="version-item">
+        <span class="version-number">v2.0.2</span>
+        <span class="version-tag beta">Beta</span>
+        <span class="version-platforms">
+          <span class="version-platform forge">Forge</span>
+          <span class="version-platform fabric">Fabric</span>
+        </span>
+        <span class="version-status deprecated">已被 2.0.3.2 取代</span>
+      </div>
+      <div class="version-item">
+        <span class="version-number">v2.0.1</span>
+        <span class="version-tag beta">Beta</span>
+        <span class="version-platforms">
+          <span class="version-platform forge">Forge</span>
+          <span class="version-platform fabric">Fabric</span>
+        </span>
+        <span class="version-status deprecated">已被 2.0.3.2 取代</span>
+      </div>
+      <div class="version-divider">历史版本（不建议使用）</div>
+      <div class="version-item">
+        <span class="version-number">v2.0.0</span>
+        <span class="version-tag beta">Beta</span>
+        <span class="version-platforms">
+          <span class="version-platform forge">Forge</span>
+          <span class="version-platform fabric">Fabric</span>
+        </span>
+        <span class="version-status deprecated">已被 2.0.1 取代</span>
+      </div>
+      <div class="version-item">
+        <span class="version-number">v1.2.0</span>
+        <span class="version-tag alpha">Alpha</span>
+        <span class="version-platforms">
+          <span class="version-platform forge">Forge</span>
+          <span class="version-platform none">—</span>
+        </span>
+        <span class="version-status deprecated">早期测试版</span>
+      </div>
+      <div class="version-item">
+        <span class="version-number">v1.1.1</span>
+        <span class="version-tag alpha">Alpha</span>
+        <span class="version-platforms">
+          <span class="version-platform forge">Forge</span>
+          <span class="version-platform none">—</span>
+        </span>
+        <span class="version-status deprecated">早期测试版</span>
+      </div>
+      <div class="version-item">
+        <span class="version-number">v1.1.0</span>
+        <span class="version-tag alpha">Alpha</span>
+        <span class="version-platforms">
+          <span class="version-platform forge">Forge</span>
+          <span class="version-platform none">—</span>
+        </span>
+        <span class="version-status deprecated">早期测试版</span>
+      </div>
+      <div class="version-item">
+        <span class="version-number">v1.0.1</span>
+        <span class="version-tag alpha">Alpha</span>
+        <span class="version-platforms">
+          <span class="version-platform forge">Forge</span>
+          <span class="version-platform none">—</span>
+        </span>
+        <span class="version-status deprecated">早期测试版</span>
+      </div>
+      <div class="version-item">
+        <span class="version-number">v1.0.0</span>
+        <span class="version-tag alpha">Alpha</span>
+        <span class="version-platforms">
+          <span class="version-platform forge">Forge</span>
+          <span class="version-platform none">—</span>
+        </span>
+        <span class="version-status deprecated">初始版本</span>
+      </div>
+    </div>
+    <div class="version-footnote">
+      <strong>说明：</strong>自 <strong>v2.0.0</strong> 版本起新增 Fabric 加载器支持，此前 1.x 系列仅支持 Forge。1.x Alpha 版本为早期测试版，功能不完善且存在已知问题，强烈建议升级至最新 v2.0.3.2-Release。
+    </div>
+  </div>
+
+  <div class="install-tabs reveal">
+    <button class="install-tab active" data-tab="forge">Forge 版本</button>
+    <button class="install-tab" data-tab="fabric">Fabric 版本</button>
+  </div>
+  <!-- Forge -->
+  <div class="install-content active" id="tab-forge">
+    <div class="install-step reveal">
+      <div class="step-number">1</div>
+      <div class="step-content">
+        <h4>安装 Forge 加载器</h4>
+        <p>安装 <code>Forge 47.4.10+</code>（MC 1.20.1）或 <code>Forge 43.3.0+</code>（MC 1.19.2）。</p>
+      </div>
+    </div>
+    <div class="install-step reveal reveal-delay-1">
+      <div class="step-number">2</div>
+      <div class="step-content">
+        <h4>安装前置模组</h4>
+        <p>安装 <code>WorldEdit (Forge版)</code> 和 <code>Cloth Config API (Forge版)</code>，两者均为必需前置。</p>
+      </div>
+    </div>
+    <div class="install-step reveal reveal-delay-2">
+      <div class="step-number">3</div>
+      <div class="step-content">
+        <h4>放入模组文件</h4>
+        <p>将 <code>Block_ID-forge-2.0.3.2-Release.jar</code> 放入 <code>.minecraft/mods</code> 文件夹，启动游戏即可。</p>
+      </div>
+    </div>
+  </div>
+  <!-- Fabric -->
+  <div class="install-content" id="tab-fabric">
+    <div class="install-step reveal">
+      <div class="step-number">1</div>
+      <div class="step-content">
+        <h4>安装 Fabric 加载器</h4>
+        <p>安装 <code>Fabric Loader 0.15.11+</code>（MC 1.20.1）或 <code>Fabric Loader 0.14.24+</code>（MC 1.19.2）。</p>
+      </div>
+    </div>
+    <div class="install-step reveal reveal-delay-1">
+      <div class="step-number">2</div>
+      <div class="step-content">
+        <h4>安装前置模组</h4>
+        <p>安装 <code>Fabric API</code>、<code>WorldEdit (Fabric版)</code> 和 <code>Cloth Config API (Fabric版)</code>。</p>
+      </div>
+    </div>
+    <div class="install-step reveal reveal-delay-2">
+      <div class="step-number">3</div>
+      <div class="step-content">
+        <h4>放入模组文件</h4>
+        <p>将 <code>Block_ID-fabric-2.0.3.2-Release.jar</code> 放入 <code>.minecraft/mods</code> 文件夹，启动游戏即可。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ 区 ============ -->
+<section class="section" id="faq">
+  <div class="section-header reveal">
+    <div class="section-label">FAQ</div>
+    <h2 class="section-title">常见问题</h2>
+    <p class="section-desc">遇到问题？先在这里找找答案</p>
+  </div>
+  <div class="faq-list">
+    <div class="faq-item reveal">
+      <div class="faq-question">
+        <span><span class="q-label">Q:</span>按下 G/C 键无反应？</span>
+        <div class="faq-toggle"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          <span class="a-label">A:</span>请检查是否与其他模组按键冲突。进入游戏设置 → 控制 → 按键绑定，找到"方块ID"分类重新绑定按键即可。
+        </div>
+      </div>
+    </div>
+    <div class="faq-item reveal reveal-delay-1">
+      <div class="faq-question">
+        <span><span class="q-label">Q:</span>替换模式的目标栏无法搜索？</span>
+        <div class="faq-toggle"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          <span class="a-label">A:</span>点击目标搜索框获取焦点（光标闪烁），即可进行独立的拼音/中文/英文搜索。当前仅替换模式开启该功能。
+        </div>
+      </div>
+    </div>
+    <div class="faq-item reveal reveal-delay-2">
+      <div class="faq-question">
+        <span><span class="q-label">Q:</span>为什么列表越往下滑越卡？</span>
+        <div class="faq-toggle"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          <span class="a-label">A:</span>请务必更新至 <code>v2.0.3.2-Release</code> 或更高版本。此版本已彻底重构底层渲染，内置视口裁剪优化，滚动十分流畅。
+        </div>
+      </div>
+    </div>
+    <div class="faq-item reveal reveal-delay-3">
+      <div class="faq-question">
+        <span><span class="q-label">Q:</span>替换模式下如何取消已选方块？</span>
+        <div class="faq-toggle"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          <span class="a-label">A:</span>左侧点击加入"源"，中间点击加入"目标"，右侧列表展示已选源/目标。直接点击右侧列表中的方块，即可将其移除。
+        </div>
+      </div>
+    </div>
+    <div class="faq-item reveal reveal-delay-4">
+      <div class="faq-question">
+        <span><span class="q-label">Q:</span>为什么列表中看不到空气等方块？</span>
+        <div class="faq-toggle"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          <span class="a-label">A:</span>为保持界面整洁，防止误选技术方块导致 WorldEdit 报错，模组自动过滤了空洞气、虚空气及无物品形态的方块，保留了可操作的"空气"供你使用。
+        </div>
+      </div>
+    </div>
+    <div class="faq-item reveal reveal-delay-5">
+      <div class="faq-question">
+        <span><span class="q-label">Q:</span>如何彻底重置常用列表？</span>
+        <div class="faq-toggle"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          <span class="a-label">A:</span>直接删除配置文件 <code>.minecraft/config/block_id.json</code>，重启游戏即可恢复默认状态。
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Footer ============ -->
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-info">
+      <span>客户端 · 服务端免装</span>
+      <span class="sep">|</span>
+      <span>配置：.minecraft/config/block_id.json</span>
+      <span class="sep">|</span>
+      <span>前置：WorldEdit + Cloth Config API（均必需）</span>
+      <span class="sep">|</span>
+      <span>下载：QQ群 1121599701</span>
+    </div>
+    <div class="footer-bottom">
+      Block ID v2.0.3.2-Release · Forge / Fabric · 2026.09.06 · <a href="#" id="footer-license" style="color:var(--accent);">使用协议</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ Toast 提示 ============ -->
+<div class="toast-overlay" id="toast">
+  <div class="toast">
+    <button class="toast-close" onclick="hideToast()" aria-label="关闭">×</button>
+    <div class="toast-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+    </div>
+    <div class="toast-content">
+      <div class="toast-title">群号已复制到剪贴板</div>
+      <div class="toast-desc"><span class="groupId">1121599701</span> · 在 QQ 中搜索群号加入</div>
+    </div>
+    <div class="toast-actions">
+      <button class="toast-btn primary" onclick="openQQ()">打开 QQ</button>
+      <button class="toast-btn secondary" onclick="downloadQQ()">下载 QQ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 更新日志弹窗 ============ -->
+<div class="modal-overlay" id="changelog-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-header-title"><span class="rocket">🚀</span> Block ID 更新日志</div>
+      <button class="modal-close" id="modal-close" aria-label="关闭">×</button>
+    </div>
+    <div class="modal-tabs">
+      <button class="modal-tab active" data-mv="2.0.3.2">v2.0.3.2-Release <span class="tag latest">最新</span> <span class="tag">重大更新</span></button>
+      <button class="modal-tab" data-mv="2.0.3.1">v2.0.3.1</button>
+      <button class="modal-tab" data-mv="2.0.3">v2.0.3</button>
+      <button class="modal-tab" data-mv="2.0.2">v2.0.2</button>
+      <button class="modal-tab" data-mv="2.0.1">v2.0.1</button>
+      <button class="modal-tab" data-mv="2.0.0">v2.0.0 <span class="tag">重大更新</span></button>
+      <button class="modal-tab" data-mv="history">历史版本</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- v2.0.3.2 -->
+      <div class="mpanel active" id="mv-2.0.3.2">
+        <div class="mv-header latest">
+          <div class="mv-top">
+            <span class="mv-title">🚀 Block_ID 2.0.3.2-Release</span>
+            <span class="mv-tag release">Release</span>
+            <span class="mv-tag latest">最新</span>
+            <span class="mv-tag major">重大更新</span>
+            <div class="mv-platforms"><span class="mv-platform">Forge</span><span class="mv-platform">Fabric</span></div>
+          </div>
+          <div class="mv-desc">重大版本更新：新增 Minecraft 1.19.2 完整支持，Forge 和 Fabric 双加载器同步适配，项目结构全面重组。</div>
+        </div>
+        <div class="msection">
+          <div class="mtitle"><div class="micon core">🌐</div>版本扩展</div>
+          <ul class="mlist">
+            <li><strong>新增 1.19.2 支持</strong>：Forge 43.3.0+ 和 Fabric 0.14.24+ 双加载器完整适配 1.19.2</li>
+            <li><strong>双 MC 版本并行</strong>：同时支持 Minecraft 1.20.1 和 1.19.2，功能完全一致</li>
+            <li><strong>API 兼容性修复</strong>：处理 1.20.1 → 1.19.2 全部 API 差异（GuiGraphics、Registry、Button 构造函数等）</li>
+          </ul>
+        </div>
+        <div class="msection">
+          <div class="mtitle"><div class="micon core">📦</div>项目优化</div>
+          <ul class="mlist">
+            <li><strong>命名格式标准化</strong>：jar 文件采用 MC 模组标准命名格式 <code>Block_ID-&lt;MC版本&gt;-&lt;加载器&gt;-&lt;版本&gt;.jar</code></li>
+            <li><strong>目录结构重组</strong>：源码、网页、发布包、开源源码分类清晰，便于维护和开源</li>
+            <li><strong>构建产物清理</strong>：移除多余临时文件和旧版本构建产物</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- v2.0.3.1 -->
+      <div class="mpanel" id="mv-2.0.3.1">
+        <div class="mv-header">
+          <div class="mv-top">
+            <span class="mv-title">🚀 Block_ID 2.0.3.1-Release</span>
+            <span class="mv-tag release">Release</span>
+            <div class="mv-platforms"><span class="mv-platform">Forge</span><span class="mv-platform">Fabric</span></div>
+          </div>
+          <div class="mv-desc">新增 1.19.2 版本支持，更新自定义源码可见协议，版本号规范化。</div>
+        </div>
+        <div class="msection">
+          <div class="mtitle"><div class="micon core">⚙️</div>开源准备</div>
+          <ul class="mlist">
+            <li><strong>新增 1.19.2 版本支持</strong>：Forge 和 Fabric 双加载器同步适配 1.19.2</li>
+            <li><strong>自定义源码可见协议</strong>：允许查看、学习、个人修改，禁止修改后二次发布</li>
+            <li><strong>新增 README.md</strong>：项目说明文档，含功能介绍、使用方法、协议说明</li>
+            <li><strong>版本号规范化</strong>：从 2.0.3-Release 改为 2.0.3.1-Release，符合语义化版本规范</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- v2.0.3 -->
+      <div class="mpanel" id="mv-2.0.3">
+        <div class="mv-header">
+          <div class="mv-top">
+            <span class="mv-title">🚀 Block_ID 2.0.3-Release</span>
+            <span class="mv-tag release">Release</span>
+            <div class="mv-platforms"><span class="mv-platform">Forge</span><span class="mv-platform">Fabric</span></div>
+          </div>
+          <div class="mv-desc">首个正式版本！从 Beta 升级为 Release，修复滑块交互BUG，添加版权协议，语言文件全面标准化。</div>
+        </div>
+        <div class="msection">
+          <div class="mtitle"><div class="micon core">⚙️</div>版本升级</div>
+          <ul class="mlist">
+            <li><strong>正式版发布</strong>：版本号从 2.0.2-Beta 升级为 2.0.3-Release，结束 Beta 测试阶段</li>
+            <li><strong>版权协议</strong>：添加 All Rights Reserved 协议，未经作者书面允许禁止二次修改后公开发布</li>
+            <li><strong>语言文件标准化</strong>：9 种语言（简中/繁中/英/日/法/德/西/葡/俄）全部采用标准 JSON 键值对格式</li>
+          </ul>
+        </div>
+        <div class="msection">
+          <div class="mtitle"><div class="micon fix">🐞</div>BUG 修复</div>
+          <ul class="mlist">
+            <li>修复放置率滑块点击范围（28px）与拖动范围（26px）不一致，导致点击最右端只能得到 99% 的问题</li>
+            <li>统一滑块点击与拖动的轨道范围，百分比计算精确到 100%</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- v2.0.2 -->
+      <div class="mpanel" id="mv-2.0.2">
+        <div class="mv-header">
+          <div class="mv-top">
+            <span class="mv-title">🚀 Block_ID 2.0.2-Beta</span>
+            <span class="mv-tag beta">Beta</span>
+            <div class="mv-platforms"><span class="mv-platform">Forge</span><span class="mv-platform">Fabric</span></div>
+          </div>
+          <div class="mv-desc">在 2.0.0 重构基础上，新增方块属性设置与放置率权重功能，界面全面美化，交互体验大幅提升。</div>
+        </div>
+        <div class="msection">
+          <div class="mtitle"><div class="micon core">⚙️</div>核心功能扩展</div>
+          <ul class="mlist">
+            <li><strong>方块属性设置</strong>：已选列表每项新增 ⚙ 按钮，展开属性编辑面板，支持所有 BlockState 属性可视化切换，输出 WorldEdit 格式 <code>minecraft:stone_slab[type=top,waterlogged=false]</code></li>
+            <li><strong>属性中文映射</strong>：内置 50+ 属性名与 60+ 属性值中文翻译，如 facing→朝向、half→半层、north→北</li>
+            <li><strong>放置率权重滑块</strong>：已选列表每项内置迷你滑块，拖动调整放置概率，输出 <code>50%stone,50%grass</code></li>
+            <li><strong>Ctrl+左键精确输入</strong>：按住 Ctrl 点击滑块或百分比文字，弹出数字输入框精确设置 1-100</li>
+            <li><strong>自动归一化</strong>：新增平均分配、调整后按比例补满、删除时重新分配，总和始终保持 100%</li>
+          </ul>
+        </div>
+        <div class="msection">
+          <div class="mtitle"><div class="micon ui">🎨</div>UI 与交互优化</div>
+          <ul class="mlist">
+            <li><strong>属性面板小卡片化</strong>：改为左下角 230px 小卡片，紧凑不遮挡列表</li>
+            <li><strong>滑块可拖动</strong>：放置率滑块支持按住拖动实时调整</li>
+            <li><strong>三列半透明面板</strong>：添加半透明背景与顶部蓝色高亮边线</li>
+            <li><strong>搜索栏占位文字</strong>：添加"搜索..."提示</li>
+            <li><strong>选中项高亮条</strong>：已选方块左侧添加绿色高亮指示条</li>
+          </ul>
+        </div>
+        <div class="msection">
+          <div class="mtitle"><div class="micon fix">🐞</div>修复与优化</div>
+          <ul class="mlist">
+            <li>修复空气方块重复显示，双重过滤仅保留 <code>minecraft:air</code></li>
+            <li>修复搜索后滚动条范围计算错误</li>
+            <li>修复替换模式下右列滚动失效</li>
+            <li>修复搜索后 ➕/✔ 图标消失</li>
+            <li>Fabric 版新增常用方块自动收集事件监听</li>
+            <li>修复 FrequentBlockManager 副作用问题</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- v2.0.1 -->
+      <div class="mpanel" id="mv-2.0.1">
+        <div class="mv-header">
+          <div class="mv-top">
+            <span class="mv-title">Block_ID 2.0.1-Beta</span>
+            <span class="mv-tag beta">Beta</span>
+            <div class="mv-platforms"><span class="mv-platform">Forge</span><span class="mv-platform">Fabric</span></div>
+          </div>
+          <div class="mv-desc">2.0.0 重构后的稳定性修复版本，主要解决首批用户反馈的交互问题。</div>
+        </div>
+        <div class="msection">
+          <div class="mtitle"><div class="micon fix">🐞</div>主要修复</div>
+          <ul class="mlist">
+            <li>修复替换模式下标签页按钮位置偏移</li>
+            <li>修复右列标题显示不完整</li>
+            <li>优化列表滚动性能</li>
+            <li>修复部分界面文字重叠</li>
+            <li>提升 Fabric 版本兼容性</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- v2.0.0 -->
+      <div class="mpanel" id="mv-2.0.0">
+        <div class="mv-header">
+          <div class="mv-top">
+            <span class="mv-title">🚀 Block_ID 2.0.0-Beta</span>
+            <span class="mv-tag beta">Beta</span>
+            <span class="mv-tag hot">重大更新</span>
+            <div class="mv-platforms"><span class="mv-platform">Forge</span><span class="mv-platform">Fabric</span></div>
+          </div>
+          <div class="mv-desc">从 1.2.0-Alpha 到 2.0.0-Beta，本次更新是一次全面重构。无论是 UI 视觉、交互逻辑还是底层数据管理，都有跨越式的提升。</div>
+        </div>
+        <div class="msection">
+          <div class="mtitle"><div class="micon ui">🎨</div>UI 与交互优化</div>
+          <ul class="mlist">
+            <li><strong>全新三列布局</strong>：左侧"全部方块"，中间"常用方块"，右侧"已选列表/确认区"，空间利用率大幅提升</li>
+            <li><strong>双模式切换</strong>：顶部按钮支持"复制模式/替换模式"与"ID复制/指令模式"任意组合切换</li>
+            <li><strong>动态图标操作</strong>：
+              <span class="sub">· 左侧/中间列表每行末尾新增 ➕ 图标，点击可手动添加至常用方块</span>
+              <span class="sub">· 已添加的常用方块图标自动变为 ✔（绿色）</span>
+              <span class="sub">· 中间"常用方块"列表每行末尾新增 ➖ 图标，点击可手动移除</span>
+            </li>
+            <li><strong>智能搜索栏</strong>：支持中文名、英文 ID、拼音首字母搜索</li>
+            <li><strong>自适应布局</strong>：全屏/小窗口下所有元素自动计算位置，彻底解决按钮遮挡或列表显示不全</li>
+          </ul>
+        </div>
+        <div class="msection">
+          <div class="mtitle"><div class="micon core">⚙️</div>核心功能扩展</div>
+          <ul class="mlist">
+            <li><strong>ID复制模式</strong>：复制纯 ID（无指令前缀），支持多选，多个 ID 以逗号分隔；替换模式复制格式为"源ID 目标ID"（含空格）</li>
+            <li><strong>指令复制模式</strong>：一键复制 <code>//set</code> 或 <code>//replace</code> 完整 WorldEdit 指令到剪贴板</li>
+            <li><strong>替换模式优化</strong>：源方块与目标方块分列显示，复制格式严格保持"源ID 目标ID"（含空格）</li>
+            <li><strong>常用方块统计规则</strong>：
+              <span class="sub">· 原版/模组方块放置 15 次自动加入（手动添加也有效）</span>
+              <span class="sub">· WorldEdit 指令使用 3 次自动加入</span>
+              <span class="sub">· 支持手动添加/移除，完全自定义</span>
+            </li>
+          </ul>
+        </div>
+        <div class="msection">
+          <div class="mtitle"><div class="micon tech">🔧</div>底层与稳定性</div>
+          <ul class="mlist">
+            <li><strong>配置系统重构</strong>：从 ForgeConfigSpec 迁移至 Gson JSON 存储，彻底解决配置文件读写崩溃</li>
+            <li><strong>统计逻辑修复</strong>：双保险策略（右键点击 + 聊天指令监听），确保常用方块统计准确</li>
+            <li><strong>按键响应优化</strong>：修复搜索框焦点死循环、按钮点击无效等遗留 Bug</li>
+            <li><strong>多语言支持</strong>：内置简中、繁中、英、日、法、德、西、葡、俄 9 种语言</li>
+            <li><strong>新增前置依赖</strong>：Cloth Config API（任何版本）</li>
+          </ul>
+        </div>
+        <div class="msection">
+          <div class="mtitle"><div class="micon fix">🐞</div>主要修复（相对 Alpha 1.2.0）</div>
+          <ul class="mlist">
+            <li>修复"替换模式复制格式缺少空格"的 Bug</li>
+            <li>修复"WorldEdit 指令无法被统计"的问题</li>
+            <li>修复"搜索栏无法输入"、"按钮无反应"等交互故障</li>
+            <li>修复"常用方块列表不刷新"的数据同步问题</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 历史版本 -->
+      <div class="mpanel" id="mv-history">
+        <div class="mv-header">
+          <div class="mv-top">
+            <span class="mv-title">📜 历史版本</span>
+            <span class="mv-tag alpha">Alpha</span>
+          </div>
+          <div class="mv-desc">1.x 系列为早期测试版本，功能不完善且存在已知问题，强烈建议升级至最新 Beta 版本。</div>
+        </div>
+        <div class="mtimeline">
+          <div class="mtl-item"><div class="mtl-version">v1.2.0-Alpha</div><div class="mtl-desc">早期测试版 · 仅支持 Forge · 基础 ID 复制与搜索功能</div></div>
+          <div class="mtl-item"><div class="mtl-version">v1.1.1-Alpha</div><div class="mtl-desc">早期测试版 · 仅支持 Forge · Bug 修复</div></div>
+          <div class="mtl-item"><div class="mtl-version">v1.1.0-Alpha</div><div class="mtl-desc">早期测试版 · 仅支持 Forge · 新增常用方块功能</div></div>
+          <div class="mtl-item"><div class="mtl-version">v1.0.1-Alpha</div><div class="mtl-desc">早期测试版 · 仅支持 Forge · 初始功能完善</div></div>
+          <div class="mtl-item"><div class="mtl-version">v1.0.0-Alpha</div><div class="mtl-desc">初始版本 · 仅支持 Forge · 基础方块 ID 查看与复制</div></div>
+        </div>
+        <div class="msection" style="margin-top:18px;">
+          <div class="mtitle"><div class="micon tech">ℹ️</div>说明</div>
+          <ul class="mlist">
+            <li>自 <strong>v2.0.0</strong> 起新增 Fabric 加载器支持，1.x 系列仅支持 Forge</li>
+            <li>1.x Alpha 为早期测试版，强烈建议升级至最新 v2.0.3.2-Release</li>
+            <li>所有版本均需前置：Cloth Config API（任何版本）、WorldEdit 7.2+</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============ 使用协议弹窗 ============ -->
+<div class="modal-overlay" id="license-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-header-title"><span class="rocket">📜</span> Block ID 使用协议</div>
+      <button class="modal-close" id="license-modal-close" aria-label="关闭">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="mv-header latest">
+        <div class="mv-top">
+          <span class="mv-title">📜 Block ID 源码可见与使用协议</span>
+          <span class="mv-tag release">正式协议</span>
+        </div>
+        <div class="mv-desc">本协议适用于 Block ID 模组的源代码与二进制发行版本。使用本模组即表示同意以下条款。</div>
+      </div>
+      <div class="msection">
+        <div class="mtitle"><div class="micon core">✅</div>允许的行为</div>
+        <ul class="mlist">
+          <li><strong>查看与学习</strong>：允许查看、阅读、分析本模组的全部源代码</li>
+          <li><strong>个人修改</strong>：允许为个人学习、研究目的修改源代码</li>
+          <li><strong>转发原始版本</strong>：允许在保留版权声明和协议的前提下转发未修改的原始版本</li>
+          <li><strong>私人使用</strong>：允许在个人 Minecraft 游戏中安装和使用本模组</li>
+        </ul>
+      </div>
+      <div class="msection">
+        <div class="mtitle"><div class="micon core">🚫</div>禁止的行为</div>
+        <ul class="mlist">
+          <li style="color:#f87171;"><strong style="color:#ef4444;">禁止二次发布</strong>：未经作者书面允许，禁止将修改后的版本以任何形式公开发布</li>
+          <li style="color:#f87171;"><strong style="color:#ef4444;">禁止商用</strong>：禁止将本模组或其源代码用于任何商业用途</li>
+          <li style="color:#f87171;"><strong style="color:#ef4444;">禁止移除版权</strong>：禁止移除或修改源代码中的版权声明和协议信息</li>
+          <li style="color:#f87171;"><strong style="color:#ef4444;">禁止恶意分发</strong>：禁止将本模组捆绑恶意软件或通过非官方渠道分发修改版本</li>
+        </ul>
+      </div>
+      <div class="msection">
+        <div class="mtitle"><div class="micon core">⚠️</div>免责声明</div>
+        <ul class="mlist">
+          <li>本模组按"现状"提供，作者不对使用过程中产生的任何问题承担责任</li>
+          <li>作者保留随时更新本协议的权利，更新后将在新版本中生效</li>
+          <li>如对协议有疑问，请通过官方 QQ 群联系作者</li>
+        </ul>
+      </div>
+      <div class="msection" style="margin-top:18px;">
+        <div class="mtitle"><div class="micon tech">©️</div>版权</div>
+        <p style="color:#94a3b8;font-size:13px;line-height:1.7;">Copyright © 2026 Block ID. All Rights Reserved. 保留所有权利。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ 方块粒子背景 ============ */
+(function() {
+  const canvas = document.getElementById('particle-canvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+  const COLORS = ['#0284c7', '#16a34a', '#d97706', '#64748b', '#0891b2'];
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  class BlockParticle {
+    constructor() { this.reset(true); }
+    reset(initial) {
+      this.size = Math.random() * 20 + 8;
+      this.x = Math.random() * canvas.width;
+      this.y = initial ? Math.random() * canvas.height : canvas.height + this.size;
+      this.speedY = -(Math.random() * 0.5 + 0.2);
+      this.speedX = (Math.random() - 0.5) * 0.3;
+      this.rotation = Math.random() * Math.PI * 2;
+      this.rotationSpeed = (Math.random() - 0.5) * 0.02;
+      this.opacity = Math.random() * 0.15 + 0.05;
+      this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
+      this.pulse = Math.random() * Math.PI * 2;
+    }
+    update() {
+      this.y += this.speedY;
+      this.x += this.speedX;
+      this.rotation += this.rotationSpeed;
+      this.pulse += 0.02;
+      if (this.y < -this.size) this.reset(false);
+    }
+    draw() {
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.rotation);
+      ctx.globalAlpha = this.opacity * (0.7 + 0.3 * Math.sin(this.pulse));
+      ctx.fillStyle = this.color;
+      // 绘制像素方块（带内部网格线，模拟Minecraft方块）
+      const s = this.size;
+      ctx.fillRect(-s/2, -s/2, s, s);
+      ctx.globalAlpha *= 0.5;
+      ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(-s/2, -s/2, s, s);
+      // 内部十字线
+      ctx.beginPath();
+      ctx.moveTo(-s/2, 0); ctx.lineTo(s/2, 0);
+      ctx.moveTo(0, -s/2); ctx.lineTo(0, s/2);
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  const count = Math.min(50, Math.floor(window.innerWidth / 30));
+  for (let i = 0; i < count; i++) particles.push(new BlockParticle());
+
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => { p.update(); p.draw(); });
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+
+/* ============ 鼠标跟随光晕 ============ */
+(function() {
+  const glow = document.getElementById('cursor-glow');
+  let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+  let cx = mx, cy = my;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  function loop() {
+    cx += (mx - cx) * 0.08;
+    cy += (my - cy) * 0.08;
+    glow.style.left = cx + 'px';
+    glow.style.top = cy + 'px';
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+
+/* ============ 导航栏滚动效果 ============ */
+(function() {
+  const navbar = document.getElementById('navbar');
+  const scrollHint = document.querySelector('.scroll-hint');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 50) {
+      navbar.classList.add('scrolled');
+      if (scrollHint) scrollHint.classList.add('hidden');
+    } else {
+      navbar.classList.remove('scrolled');
+      if (scrollHint) scrollHint.classList.remove('hidden');
+    }
+  });
+})();
+
+/* ============ 滚动入场动画 (IntersectionObserver) ============ */
+(function() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+})();
+
+/* ============ 数字计数动画 ============ */
+(function() {
+  const counters = document.querySelectorAll('.counter, .stat-number');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        const target = parseInt(el.dataset.target, 10);
+        const duration = 1800;
+        const start = performance.now();
+        function tick(now) {
+          const progress = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          const suffix = el.dataset.suffix || '';
+          el.textContent = Math.floor(eased * target) + suffix;
+          if (progress < 1) requestAnimationFrame(tick);
+          else el.textContent = target + suffix;
+        }
+        requestAnimationFrame(tick);
+        observer.unobserve(el);
+      }
+    });
+  }, { threshold: 0.5 });
+  counters.forEach(c => observer.observe(c));
+
+  // 性能条动画
+  const bars = document.querySelectorAll('.perf-bar-fill');
+  const barObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.width = entry.target.dataset.width + '%';
+        barObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  bars.forEach(b => barObserver.observe(b));
+})();
+
+/* ============ 功能卡片鼠标跟随光效 ============ */
+(function() {
+  document.querySelectorAll('.feature-card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      card.style.setProperty('--mx', ((e.clientX - rect.left) / rect.width * 100) + '%');
+      card.style.setProperty('--my', ((e.clientY - rect.top) / rect.height * 100) + '%');
+    });
+  });
+})();
+
+/* ============ 安装指南 Tab 切换 ============ */
+(function() {
+  const tabs = document.querySelectorAll('.install-tab');
+  const contents = document.querySelectorAll('.install-content');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      contents.forEach(c => c.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+    });
+  });
+})();
+
+/* ============ 终端打字动画 ============ */
+(function() {
+  const body = document.getElementById('terminal-body');
+  const lines = [
+    { type: 'input', text: '<span class="prompt">[BlockID]</span> <span class="command">按下 G 键打开主界面</span>' },
+    { type: 'output', text: '<span class="output">> 界面已加载 · 三列布局：全部 / 常用 / 已选</span>' },
+    { type: 'output', text: '<span class="output">> 已加载 1500+ 方块（原版 + 模组）· 拼音缓存就绪</span>' },
+    { type: 'input', text: '<span class="prompt">[BlockID]</span> <span class="command">搜索: shanchang</span>' },
+    { type: 'output', text: '<span class="output">> 多音字匹配：闪长岩(minecraft:diorite) · 安山岩 · 花岗岩</span>' },
+    { type: 'input', text: '<span class="prompt">[BlockID]</span> <span class="command">搜索: st</span>' },
+    { type: 'output', text: '<span class="output">> 声母缩写匹配：石头 · 闪长岩 · 深板岩 · 砂轮 · 砂岩...</span>' },
+    { type: 'input', text: '<span class="prompt">[BlockID]</span> <span class="command">选择 "石头" → 点击 + 加入常用</span>' },
+    { type: 'output', text: '<span class="success">> 已收藏至常用列表 · 已保存到 block_id.json</span>' },
+    { type: 'input', text: '<span class="prompt">[BlockID]</span> <span class="command">按下 C 键复制手持方块 ID</span>' },
+    { type: 'output', text: '<span class="success">> 已复制: minecraft:stone</span>' },
+    { type: 'input', text: '<span class="prompt">[BlockID]</span> <span class="command">切换替换模式 · 目标: 闪长岩</span>' },
+    { type: 'output', text: '<span class="warn">> 替换源: minecraft:stone → 目标: minecraft:diorite</span>' },
+    { type: 'input', text: '<span class="prompt">[BlockID]</span> <span class="command">多选: 石头 + 深板岩 → 闪长岩 + 花岗岩</span>' },
+    { type: 'output', text: '<span class="output">> 已选 2 个替换源 · 2 个目标方块</span>' },
+    { type: 'input', text: '<span class="prompt">[BlockID]</span> <span class="command">生成指令并复制</span>' },
+    { type: 'success', text: '<span class="success">> //replace minecraft:stone,minecraft:deepslate minecraft:diorite,minecraft:granite</span>' },
+    { type: 'success', text: '<span class="success">> 指令已复制到剪贴板 · 粘贴到聊天即可执行 ✓</span>' },
+    { type: 'output', text: '<span class="output">> 视口裁剪渲染中 · 当前帧率 60 FPS · 滚动流畅</span>' },
+    { type: 'cursor', text: '<span class="prompt">[BlockID]</span> <span class="terminal-cursor"></span>' }
+  ];
+
+  function stripHtml(html) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
+  }
+
+  const terminalEl = body.closest('.terminal');
+  const observer = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting) {
+      observer.disconnect();
+      // 触发窗口高度展开动画
+      if (terminalEl) terminalEl.classList.add('open');
+      // 等待展开动画进行一部分后再开始打字
+      setTimeout(() => {
+        let idx = 0;
+
+      // 逐字打字（用于输入行）
+      function typeLine(lineEl, plainText, fullHtml, speed, done) {
+        let pos = 0;
+        lineEl.style.opacity = '1';
+        lineEl.style.transform = 'scaleX(1)';
+        function tick() {
+          if (pos <= plainText.length) {
+            lineEl.textContent = plainText.substring(0, pos);
+            pos++;
+            setTimeout(tick, speed);
+          } else {
+            lineEl.innerHTML = fullHtml;
+            if (done) done();
+          }
+        }
+        tick();
+      }
+
+      // 淡入揭示（用于输出行）— 从左到右拉长展开
+      function revealLine(lineEl, html, done) {
+        lineEl.innerHTML = html;
+        lineEl.classList.add('stretched');
+        setTimeout(done || (() => {}), 550);
+      }
+
+      function next() {
+        if (idx >= lines.length) return;
+        const line = lines[idx];
+        const el = document.createElement('div');
+        el.className = 'terminal-line';
+        body.appendChild(el);
+
+        if (line.type === 'input') {
+          const plain = stripHtml(line.text);
+          typeLine(el, plain, line.text, 38, () => {
+            idx++;
+            setTimeout(next, 450);
+          });
+        } else if (line.type === 'cursor') {
+          el.innerHTML = line.text;
+          el.style.opacity = '1';
+          el.style.transform = 'scaleX(1)';
+          idx++;
+        } else {
+          revealLine(el, line.text, () => {
+            idx++;
+            setTimeout(next, 200);
+          });
+        }
+      }
+      next();
+      }, 450);
+    }
+  }, { threshold: 0.1 });
+  if (terminalEl) observer.observe(terminalEl);
+  else observer.observe(body);
+})();
+
+/* ============ FAQ 手风琴 ============ */
+(function() {
+  document.querySelectorAll('.faq-question').forEach(q => {
+    q.addEventListener('click', () => {
+      const item = q.parentElement;
+      const wasOpen = item.classList.contains('open');
+      // 关闭所有
+      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+      // 切换当前
+      if (!wasOpen) item.classList.add('open');
+    });
+  });
+})();
+
+/* ============ 平滑锚点滚动（不使用 scrollIntoView） ============ */
+(function() {
+  document.querySelectorAll('a[href^="#"]').forEach(link => {
+    link.addEventListener('click', e => {
+      const target = document.querySelector(link.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        const top = target.getBoundingClientRect().top + window.scrollY - 80;
+        window.scrollTo({ top, behavior: 'smooth' });
+      }
+    });
+  });
+})();
+
+/* ============ 下载卡片：点击提示按钮复制群号 + 唤起QQ ============ */
+(function() {
+  const GROUP_ID = '1121599701';
+  const hint = document.querySelector('.download-click-hint');
+  if (!hint) return;
+
+  hint.addEventListener('click', function() {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(GROUP_ID).then(showToast).catch(fallbackCopy);
+    } else {
+      fallbackCopy();
+    }
+  });
+
+  function fallbackCopy() {
+    const ta = document.createElement('textarea');
+    ta.value = GROUP_ID;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch(e) {}
+    document.body.removeChild(ta);
+    showToast();
+  }
+})();
+
+let _toastTimer = null;
+function showToast() {
+  const toast = document.getElementById('toast');
+  if (!toast) return;
+  toast.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(hideToast, 8000);
+}
+function hideToast() {
+  const toast = document.getElementById('toast');
+  if (toast) toast.classList.remove('show');
+  clearTimeout(_toastTimer);
+}
+
+function openQQ() {
+  // 仅唤起 QQ 客户端主程序，不尝试自动加群
+  // （已在群内的用户触发加群协议会报"群号不合法"）
+  const tryUrls = [
+    'tencent://message/?uin=10000&Site=qq&Menu=yes',
+    'tencent://'
+  ];
+  for (const url of tryUrls) {
+    try {
+      window.location.href = url;
+      break;
+    } catch(e) {}
+  }
+  // 2秒后若页面仍在前台，提示未检测到QQ
+  setTimeout(() => {
+    if (!document.hidden) {
+      const desc = document.querySelector('.toast-desc');
+      if (desc) {
+        desc.innerHTML = '<span style="color:#fbbf24">未检测到QQ客户端</span> · 请点击"下载QQ"';
+      }
+    }
+  }, 2000);
+}
+
+function downloadQQ() {
+  window.open('https://im.qq.com/pcqq/', '_blank', 'noopener');
+}
+
+/* ============ 更新日志弹窗 ============ */
+(function() {
+  const modal = document.getElementById('changelog-modal');
+  const closeBtn = document.getElementById('modal-close');
+  const openBtns = [document.getElementById('nav-changelog'), document.querySelector('.hero-changelog-btn')].filter(Boolean);
+
+  function openModal() {
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal() {
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  openBtns.forEach(btn => btn.addEventListener('click', e => { e.preventDefault(); openModal(); }));
+  closeBtn.addEventListener('click', closeModal);
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  const tabs = document.querySelectorAll('.modal-tab');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const mv = tab.dataset.mv;
+      tabs.forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.mpanel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      const panel = document.getElementById('mv-' + mv);
+      if (panel) panel.classList.add('active');
+    });
+  });
+})();
+
+/* ============ 使用协议弹窗 ============ */
+(function() {
+  const modal = document.getElementById('license-modal');
+  const closeBtn = document.getElementById('license-modal-close');
+  const openBtns = [document.getElementById('nav-license'), document.getElementById('footer-license'), document.getElementById('download-license-btn')].filter(Boolean);
+
+  function openModal() {
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal() {
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  openBtns.forEach(btn => btn.addEventListener('click', e => { e.preventDefault(); openModal(); }));
+  closeBtn.addEventListener('click', closeModal);
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+})();
+</script>
+</body>
+</html>
