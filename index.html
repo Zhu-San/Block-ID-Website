@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Block ID — 方块ID · WorldEdit 指令 · 智能搜索</title>
+<link rel="icon" type="image/png" href="https://aka.doubaocdn.com/s/GaYX7u3vKU">
 <link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap">
 <style>
 /* ============ 全局变量与重置 ============ */
@@ -100,17 +101,18 @@ body {
 }
 .nav-logo-icon {
   width: 36px; height: 36px;
-  background: linear-gradient(135deg, var(--cyan), var(--cyan-dim));
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-mono);
-  font-weight: 800;
-  font-size: 18px;
-  color: #fff;
+  overflow: hidden;
   box-shadow: 0 0 20px rgba(2,132,199,0.25);
   animation: logoPulse 3s ease-in-out infinite;
+}
+.nav-logo-icon img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
 }
 @keyframes logoPulse {
   0%, 100% { box-shadow: 0 0 16px rgba(2,132,199,0.2); }
@@ -1825,7 +1827,7 @@ body {
 <!-- ============ 导航栏 ============ -->
 <nav class="navbar" id="navbar">
   <a href="#" class="nav-logo">
-    <div class="nav-logo-icon">B</div>
+    <div class="nav-logo-icon"><img src="https://aka.doubaocdn.com/s/GaYX7u3vKU" alt="Block ID Logo"></div>
     <div class="nav-logo-text">Block<span>ID</span></div>
   </a>
   <ul class="nav-links">
@@ -2758,7 +2760,7 @@ body {
       <div class="license-agree-area">
         <p class="license-scroll-tip" id="license-scroll-tip">⬇ 请滚动阅读至底部后同意协议</p>
         <button class="btn btn-primary license-agree-btn" id="license-agree-btn" disabled>
-          我已阅读并同意以上协议（10s）
+          我已阅读并同意以上协议（20s）
         </button>
       </div>
     </div>
@@ -3180,7 +3182,7 @@ function downloadQQ() {
   const openBtns = [document.getElementById('nav-license'), document.getElementById('footer-license'), document.getElementById('download-license-btn')].filter(Boolean);
   let hasAgreed = false;
   let scrolledToBottom = false;
-  let countdown = 10;
+  let countdown = 20;
   let timer = null;
 
   function updateBtnState() {
@@ -3205,7 +3207,7 @@ function downloadQQ() {
     document.body.style.overflow = 'hidden';
     if (autoShow && !hasAgreed) {
       scrolledToBottom = false;
-      countdown = 10;
+      countdown = 20;
       modalBody.scrollTop = 0;
       scrollTip.style.display = 'block';
       updateBtnState();
