@@ -2726,7 +2726,7 @@ body {
       <div class="license-agree-area">
         <p class="license-scroll-tip" id="license-scroll-tip">⬇ 请滚动阅读至底部后同意协议</p>
         <button class="btn btn-primary license-agree-btn" id="license-agree-btn" disabled>
-          我已阅读并同意以上协议
+          我已阅读并同意以上协议（10s）
         </button>
       </div>
     </div>
@@ -3147,21 +3147,52 @@ function downloadQQ() {
   const modalBody = modal.querySelector('.modal-body');
   const openBtns = [document.getElementById('nav-license'), document.getElementById('footer-license'), document.getElementById('download-license-btn')].filter(Boolean);
   let hasAgreed = false;
+  let scrolledToBottom = false;
+  let countdown = 10;
+  let timer = null;
 
+  function updateBtnState() {
+    if (hasAgreed) return;
+    if (scrolledToBottom && countdown <= 0) {
+      closeBtn.disabled = false;
+      agreeBtn.disabled = false;
+      agreeBtn.textContent = '我已阅读并同意以上协议';
+      scrollTip.style.display = 'none';
+    } else {
+      closeBtn.disabled = true;
+      agreeBtn.disabled = true;
+      if (countdown > 0) {
+        agreeBtn.textContent = '我已阅读并同意以上协议（' + countdown + 's）';
+      } else if (!scrolledToBottom) {
+        agreeBtn.textContent = '我已阅读并同意以上协议';
+      }
+    }
+  }
   function openModal(autoShow) {
     modal.classList.add('open');
     document.body.style.overflow = 'hidden';
     if (autoShow && !hasAgreed) {
-      closeBtn.disabled = true;
-      agreeBtn.disabled = true;
-      scrollTip.style.display = 'block';
+      scrolledToBottom = false;
+      countdown = 10;
       modalBody.scrollTop = 0;
+      scrollTip.style.display = 'block';
+      updateBtnState();
+      if (timer) clearInterval(timer);
+      timer = setInterval(() => {
+        countdown--;
+        if (countdown <= 0) {
+          clearInterval(timer);
+          timer = null;
+        }
+        updateBtnState();
+      }, 1000);
     }
   }
   function closeModal() {
     if (!hasAgreed && closeBtn.disabled) return;
     modal.classList.remove('open');
     document.body.style.overflow = '';
+    if (timer) { clearInterval(timer); timer = null; }
   }
   function checkScroll() {
     if (hasAgreed) return;
@@ -3169,9 +3200,8 @@ function downloadQQ() {
     const scrollHeight = modalBody.scrollHeight;
     const clientHeight = modalBody.clientHeight;
     if (scrollTop + clientHeight >= scrollHeight - 10) {
-      closeBtn.disabled = false;
-      agreeBtn.disabled = false;
-      scrollTip.style.display = 'none';
+      scrolledToBottom = true;
+      updateBtnState();
     }
   }
   modalBody.addEventListener('scroll', checkScroll);
