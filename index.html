@@ -3184,6 +3184,7 @@ function downloadQQ() {
   let scrolledToBottom = false;
   let countdown = 20;
   let timer = null;
+  let isAutoShow = false;
 
   function updateBtnState() {
     if (hasAgreed) return;
@@ -3203,9 +3204,11 @@ function downloadQQ() {
     }
   }
   function openModal(autoShow) {
+    isAutoShow = autoShow && !hasAgreed;
     modal.classList.add('open');
     document.body.style.overflow = 'hidden';
-    if (autoShow && !hasAgreed) {
+    if (isAutoShow) {
+      closeBtn.style.display = 'none';
       scrolledToBottom = false;
       countdown = 20;
       modalBody.scrollTop = 0;
@@ -3220,13 +3223,20 @@ function downloadQQ() {
         }
         updateBtnState();
       }, 1000);
+    } else {
+      closeBtn.style.display = 'flex';
+      closeBtn.disabled = false;
+      agreeBtn.disabled = false;
+      agreeBtn.textContent = '我已阅读并同意以上协议';
+      scrollTip.style.display = 'none';
     }
   }
   function closeModal() {
-    if (!hasAgreed && closeBtn.disabled) return;
+    if (isAutoShow && !hasAgreed) return;
     modal.classList.remove('open');
     document.body.style.overflow = '';
     if (timer) { clearInterval(timer); timer = null; }
+    isAutoShow = false;
   }
   function checkScroll() {
     if (hasAgreed) return;
@@ -3241,15 +3251,17 @@ function downloadQQ() {
   modalBody.addEventListener('scroll', checkScroll);
   openBtns.forEach(btn => btn.addEventListener('click', e => { e.preventDefault(); hasAgreed = true; openModal(false); }));
   closeBtn.addEventListener('click', closeModal);
-  agreeBtn.addEventListener('click', () => { hasAgreed = true; closeModal(); });
+  agreeBtn.addEventListener('click', () => {
+    hasAgreed = true;
+    localStorage.setItem('blockid_license_agreed', 'true');
+    closeModal();
+  });
   modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
   setTimeout(() => {
-    const lastShow = localStorage.getItem('blockid_license_last_show');
-    const now = Date.now();
-    if (!lastShow || (now - parseInt(lastShow)) > 5 * 60 * 1000) {
-      localStorage.setItem('blockid_license_last_show', now.toString());
+    const agreed = localStorage.getItem('blockid_license_agreed');
+    if (!agreed) {
       openModal(true);
     }
   }, 600);
