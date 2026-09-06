@@ -1324,6 +1324,27 @@ body {
   transition: all 0.2s;
 }
 .modal-close:hover { color: #f87171; border-color: #f87171; transform: rotate(90deg); }
+.modal-close:disabled { opacity: 0.3; cursor: not-allowed; }
+.modal-close:disabled:hover { color: #9aa3b8; border-color: #2a3145; transform: none; }
+.license-agree-area {
+  margin-top: 24px; padding-top: 20px;
+  border-top: 1px solid #2a3145;
+  text-align: center;
+}
+.license-scroll-tip {
+  color: #fbbf24; font-size: 13px; margin-bottom: 14px;
+  animation: tipPulse 2s ease-in-out infinite;
+}
+.license-agree-btn {
+  width: 100%; max-width: 320px;
+  padding: 12px 24px; font-size: 14px; font-weight: 600;
+}
+.license-agree-btn:disabled {
+  opacity: 0.4; cursor: not-allowed;
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #64748b !important;
+}
 .modal-tabs {
   display: flex; gap: 8px; padding: 14px 26px 0;
   border-bottom: 1px solid #2a3145; flex-wrap: wrap;
@@ -2702,6 +2723,12 @@ body {
         <div class="mtitle"><div class="micon tech">©️</div>版权</div>
         <p style="color:#94a3b8;font-size:13px;line-height:1.7;">Copyright © 2026 Block ID. All Rights Reserved. 保留所有权利。</p>
       </div>
+      <div class="license-agree-area">
+        <p class="license-scroll-tip" id="license-scroll-tip">⬇ 请滚动阅读至底部后同意协议</p>
+        <button class="btn btn-primary license-agree-btn" id="license-agree-btn" disabled>
+          我已阅读并同意以上协议
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -3115,20 +3142,46 @@ function downloadQQ() {
 (function() {
   const modal = document.getElementById('license-modal');
   const closeBtn = document.getElementById('license-modal-close');
+  const agreeBtn = document.getElementById('license-agree-btn');
+  const scrollTip = document.getElementById('license-scroll-tip');
+  const modalBody = modal.querySelector('.modal-body');
   const openBtns = [document.getElementById('nav-license'), document.getElementById('footer-license'), document.getElementById('download-license-btn')].filter(Boolean);
+  let hasAgreed = false;
 
-  function openModal() {
+  function openModal(autoShow) {
     modal.classList.add('open');
     document.body.style.overflow = 'hidden';
+    if (autoShow && !hasAgreed) {
+      closeBtn.disabled = true;
+      agreeBtn.disabled = true;
+      scrollTip.style.display = 'block';
+      modalBody.scrollTop = 0;
+    }
   }
   function closeModal() {
+    if (!hasAgreed && closeBtn.disabled) return;
     modal.classList.remove('open');
     document.body.style.overflow = '';
   }
-  openBtns.forEach(btn => btn.addEventListener('click', e => { e.preventDefault(); openModal(); }));
+  function checkScroll() {
+    if (hasAgreed) return;
+    const scrollTop = modalBody.scrollTop;
+    const scrollHeight = modalBody.scrollHeight;
+    const clientHeight = modalBody.clientHeight;
+    if (scrollTop + clientHeight >= scrollHeight - 10) {
+      closeBtn.disabled = false;
+      agreeBtn.disabled = false;
+      scrollTip.style.display = 'none';
+    }
+  }
+  modalBody.addEventListener('scroll', checkScroll);
+  openBtns.forEach(btn => btn.addEventListener('click', e => { e.preventDefault(); hasAgreed = true; openModal(false); }));
   closeBtn.addEventListener('click', closeModal);
+  agreeBtn.addEventListener('click', () => { hasAgreed = true; closeModal(); });
   modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  setTimeout(() => { openModal(true); }, 600);
 })();
 </script>
 </body>
