@@ -3236,15 +3236,16 @@ function downloadQQ() {
   closeBtn.addEventListener('click', closeModal);
   agreeBtn.addEventListener('click', () => {
     hasAgreed = true;
-    localStorage.setItem('blockid_license_agreed', 'true');
+    localStorage.setItem('blockid_license_agreed_time', Date.now().toString());
     closeModal();
   });
   modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
   setTimeout(() => {
-    const agreed = localStorage.getItem('blockid_license_agreed');
-    if (!agreed) {
+    const agreedTime = localStorage.getItem('blockid_license_agreed_time');
+    const now = Date.now();
+    if (!agreedTime || (now - parseInt(agreedTime)) > 5 * 60 * 1000) {
       openModal(true);
     }
   }, 600);
