@@ -1435,6 +1435,14 @@ body {
 }
 .mlist li strong { color: #e8eaf0; font-weight: 600; }
 .mlist li .sub { display: block; padding-left: 14px; color: #8a92a8; font-size: 13px; }
+.msub {
+  font-size: 13px; font-weight: 700; color: #6ba8f0;
+  margin: 14px 0 6px; letter-spacing: 1px;
+}
+.msub-item {
+  font-size: 13.5px; font-weight: 600; color: #c8cdd8;
+  margin: 9px 0 2px;
+}
 .mtimeline { position: relative; padding-left: 28px; }
 .mtimeline::before {
   content: ''; position: absolute; left: 7px; top: 10px; bottom: 10px; width: 2px;
@@ -2455,6 +2463,7 @@ body {
       <button class="modal-tab" data-mv="2.0.2">v2.0.2</button>
       <button class="modal-tab" data-mv="2.0.1">v2.0.1</button>
       <button class="modal-tab" data-mv="2.0.0">v2.0.0 <span class="tag">重大更新</span></button>
+      <button class="modal-tab" data-mv="roadmap">未来计划 <span class="tag">规划中</span></button>
       <button class="modal-tab" data-mv="history">历史版本</button>
     </div>
     <div class="modal-body">
@@ -2751,6 +2760,117 @@ body {
             <li>自 <strong>v2.0.0</strong> 起新增 Fabric 加载器支持，1.x 系列仅支持 Forge</li>
             <li>1.x Alpha 为早期测试版，强烈建议升级至最新 v2.1.0-Release</li>
             <li>所有版本均需前置：Cloth Config API（任何版本）、WorldEdit 7.2+</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 未来计划 -->
+      <div class="mpanel" id="mv-roadmap">
+        <div class="mv-header">
+          <div class="mv-top">
+            <span class="mv-title">Block_ID 未来版本规划</span>
+            <span class="mv-tag alpha">Roadmap</span>
+            <span class="mv-tag major">规划中</span>
+          </div>
+          <div class="mv-desc">以下为后续版本开发规划，具体功能与发布时间可能根据实际情况调整。当前最新版本：v2.1.0-Release。</div>
+        </div>
+
+        <div class="msection">
+          <div class="mtitle"><div class="micon core">1</div>v2.1 → v2.2 变更规划</div>
+          <div class="msub">新增功能</div>
+          <div class="msub-item">收藏夹组增强</div>
+          <ul class="mlist">
+            <li><strong>拖拽排序</strong>：收藏夹方块拖拽排序，调整组内方块上下顺序</li>
+            <li><strong>组导出/导入</strong>：单组导出文本、导入方块组配置，用于分享配置</li>
+            <li><strong>组颜色标签</strong>：给分组设置标记颜色，界面快速区分不同用途分组</li>
+          </ul>
+          <div class="msub-item">历史记录强化</div>
+          <ul class="mlist">
+            <li><strong>加入收藏</strong>：历史条目可直接加入收藏夹</li>
+            <li><strong>记录管理</strong>：支持单条删除、一键清空全部历史记录</li>
+            <li><strong>记录持久化</strong>：游戏重启后历史不会丢失（写入配置文件）</li>
+          </ul>
+          <div class="msub">优化与打磨</div>
+          <div class="msub-item">UI 交互优化</div>
+          <ul class="mlist">
+            <li><strong>输入框焦点优化</strong>：点击界面外部自动取消重命名输入</li>
+            <li><strong>滚动边界修正</strong>：防止滚动越界，微调滚动条手感</li>
+            <li><strong>权重输入容错</strong>：非法数字输入自动修正，避免界面异常</li>
+          </ul>
+          <div class="msub-item">指令复制修复</div>
+          <ul class="mlist">
+            <li><strong>属性复制修复</strong>：修复部分带复杂方块状态的方块复制时属性丢失问题</li>
+          </ul>
+          <div class="msub" style="color:#f87171;">Bug 修复（v2.2）</div>
+          <ul class="mlist">
+            <li>部分特殊方块属性复制不全</li>
+            <li>输入框异常焦点残留问题</li>
+            <li>滚动越界、滚动条边界异常</li>
+            <li>权重输入非法值导致界面卡死</li>
+          </ul>
+        </div>
+
+        <div class="msection">
+          <div class="mtitle"><div class="micon ui">2</div>v2.3 → v2.4 变更规划</div>
+          <div class="msub">新增功能</div>
+          <div class="msub-item">组权限与分类管理</div>
+          <ul class="mlist">
+            <li><strong>分类标签</strong>：支持给分组设置分类标签，多组大量存放时快速筛选分组</li>
+            <li><strong>分组折叠</strong>：收起暂时不用的分组，减少界面信息占用</li>
+            <li><strong>批量移动</strong>：将选中多个方块一次性转移至其他分组</li>
+          </ul>
+          <div class="msub-item">预览辅助功能</div>
+          <ul class="mlist">
+            <li><strong>方块悬浮预览</strong>：鼠标悬停在列表条目，实时渲染方块材质预览</li>
+            <li><strong>方块状态预览</strong>：查看当前设置的方块属性效果</li>
+            <li><strong>预览缩放调节</strong>：调整悬浮预览方块大小</li>
+          </ul>
+          <div class="msub-item">导出增强</div>
+          <ul class="mlist">
+            <li><strong>多组合并导出</strong>：一次性导出多个收藏组的全部方块配置</li>
+            <li><strong>导出注释支持</strong>：在导出文本内添加自定义备注信息</li>
+            <li><strong>编码兼容优化</strong>：避免不同系统打开乱码</li>
+          </ul>
+          <div class="msub">优化与打磨</div>
+          <div class="msub-item">UI 交互优化</div>
+          <ul class="mlist">
+            <li><strong>分组滚动独立</strong>：分组列表滚动独立控制，和方块列表滚动互不干扰</li>
+            <li><strong>右键菜单优化</strong>：操作选项归类整理</li>
+            <li><strong>文本选中快捷键</strong>：输入框文本选中快捷键支持</li>
+          </ul>
+          <div class="msub-item">配置持久化优化</div>
+          <ul class="mlist">
+            <li><strong>配置自动备份</strong>：模组退出时自动生成配置备份文件</li>
+            <li><strong>配置导入选择</strong>：导入时可选择覆盖或者合并现有分组</li>
+          </ul>
+        </div>
+
+        <div class="msection">
+          <div class="mtitle"><div class="micon tech">3</div>v2.4 → v2.5 变更规划</div>
+          <div class="msub">新增功能</div>
+          <div class="msub-item">高级指令生成</div>
+          <ul class="mlist">
+            <li><strong>批量区域指令</strong>：支持批量生成 WorldEdit 多区域指令</li>
+            <li><strong>指令模板</strong>：指令格式自定义模板，按需调整输出指令风格</li>
+            <li><strong>指令预校验</strong>：提前检查方块 ID、方块状态合法性</li>
+          </ul>
+          <div class="msub-item">全局偏好设置</div>
+          <ul class="mlist">
+            <li><strong>权重规则切换</strong>：全局权重计算规则切换</li>
+            <li><strong>自定义快捷键</strong>：给模组界面、画笔功能绑定按键</li>
+            <li><strong>界面主题保存</strong>：记住上次使用的主题与缩放设置</li>
+          </ul>
+          <div class="msub">优化与打磨</div>
+          <div class="msub-item">UI 交互优化</div>
+          <ul class="mlist">
+            <li><strong>全局设置弹窗</strong>：独立弹窗，统一管理所有模组偏好</li>
+            <li><strong>弹窗动画优化</strong>：减少界面切换闪烁</li>
+            <li><strong>列表缓存优化</strong>：大量方块条目时提升界面渲染速度</li>
+          </ul>
+          <div class="msub-item">配置持久化优化</div>
+          <ul class="mlist">
+            <li><strong>配置文件拆分</strong>：分组、历史、模板、设置分开存储，降低单文件损坏影响</li>
+            <li><strong>配置版本迁移</strong>：旧版本配置自动兼容升级</li>
           </ul>
         </div>
       </div>
