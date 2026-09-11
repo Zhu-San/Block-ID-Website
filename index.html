@@ -430,7 +430,7 @@ body {
 }
 .quick-nav-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 18px;
 }
 .quick-nav-card {
@@ -721,6 +721,100 @@ body {
   color: var(--cyan-dim);
   border: 1px solid var(--border);
 }
+/* ============ 未来规划区 ============ */
+.roadmap-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  align-items: stretch;
+}
+.roadmap-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px 26px;
+  transition: all 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+}
+.roadmap-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--cyan), #38bdf8);
+  opacity: 0.75;
+}
+.roadmap-card:nth-child(2)::before { background: linear-gradient(90deg, var(--green), #4ade80); }
+.roadmap-card:nth-child(3)::before { background: linear-gradient(90deg, var(--gold), #fbbf24); }
+.roadmap-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--border-light);
+  box-shadow: var(--shadow-lg);
+}
+.roadmap-version {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--cyan);
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+.roadmap-card:nth-child(2) .roadmap-version { color: var(--green); }
+.roadmap-card:nth-child(3) .roadmap-version { color: var(--gold); }
+.roadmap-title {
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+.roadmap-tag {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 5px;
+  background: rgba(2,132,199,0.1);
+  color: var(--cyan);
+  border: 1px solid rgba(2,132,199,0.25);
+  margin-bottom: 6px;
+}
+.roadmap-card:nth-child(2) .roadmap-tag { background: rgba(22,163,74,0.1); color: var(--green); border-color: rgba(22,163,74,0.25); }
+.roadmap-card:nth-child(3) .roadmap-tag { background: rgba(217,119,6,0.1); color: var(--gold); border-color: rgba(217,119,6,0.25); }
+.roadmap-sub {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 2px;
+  margin: 14px 0 4px;
+  border-bottom: 1px dashed var(--border);
+  padding-bottom: 4px;
+}
+.roadmap-list {
+  list-style: none;
+  flex: 1;
+}
+.roadmap-list li {
+  position: relative;
+  padding: 3.5px 0 3.5px 16px;
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+.roadmap-list li::before {
+  content: '';
+  position: absolute;
+  left: 2px; top: 12px;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--cyan);
+}
+.roadmap-card:nth-child(2) .roadmap-list li::before { background: var(--green); }
+.roadmap-card:nth-child(3) .roadmap-list li::before { background: var(--gold); }
+
 
 /* ============ 性能数据区 ============ */
 .perf-section {
@@ -1725,6 +1819,8 @@ body {
   border: 1px solid var(--border);
 }
 
+
+
 /* ============ 原版介绍图展示区 ============ */
 .preview-section {
   text-align: center;
@@ -1798,6 +1894,7 @@ body {
   .section { padding: 80px 24px; }
   .intro-grid { grid-template-columns: 1fr; gap: 32px; }
   .features-grid { grid-template-columns: 1fr; }
+  .roadmap-grid { grid-template-columns: 1fr; }
   .perf-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
   .hero-cta { flex-direction: column; align-items: center; }
   .btn { width: 100%; max-width: 320px; justify-content: center; }
@@ -1843,6 +1940,7 @@ body {
     <li><a href="#features">核心功能</a></li>
     <li><a href="#install">安装指南</a></li>
     <li><a href="#faq">常见问题</a></li>
+    <li><a href="#roadmap">未来规划</a></li>
     <li><a href="#" id="nav-changelog" class="nav-changelog-link">更新日志 <span class="changelog-badge">NEW</span></a></li>
     <li><a href="#" id="nav-license" class="nav-changelog-link">使用协议</a></li>
   </ul>
@@ -1919,6 +2017,13 @@ body {
       </div>
       <div class="quick-nav-title">常见问题 <svg class="quick-nav-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
       <div class="quick-nav-desc">FAQ 快速排查</div>
+    </a>
+    <a href="#roadmap" class="quick-nav-card reveal reveal-delay-4">
+      <div class="quick-nav-icon" style="background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.25);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      </div>
+      <div class="quick-nav-title">未来规划 <svg class="quick-nav-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+      <div class="quick-nav-desc">版本路线图</div>
     </a>
   </div>
 </div>
@@ -2412,6 +2517,73 @@ body {
   </div>
 </section>
 
+<!-- ============ 未来规划 ============ -->
+<section class="section" id="roadmap">
+  <div class="section-header reveal">
+    <div class="section-label">ROADMAP</div>
+    <h2 class="section-title">未来开发规划</h2>
+    <p class="section-desc">持续迭代的方向与计划，具体内容可能根据实际开发情况调整</p>
+  </div>
+  <div class="roadmap-grid">
+    <div class="roadmap-card reveal reveal-delay-1">
+      <div class="roadmap-version">v2.1 → v2.2</div>
+      <div class="roadmap-title">收藏夹与历史增强</div>
+      <div class="roadmap-tag">近期规划</div>
+      <div class="roadmap-sub">新增功能</div>
+      <ul class="roadmap-list">
+        <li>收藏夹方块拖拽排序，调整组内顺序</li>
+        <li>组导出 / 导入，分享方块组配置</li>
+        <li>组颜色标签，快速区分用途</li>
+        <li>历史条目可直接加入收藏夹</li>
+        <li>历史记录单条删除 / 一键清空</li>
+        <li>历史记录持久化，重启不丢失</li>
+      </ul>
+      <div class="roadmap-sub">优化与打磨</div>
+      <ul class="roadmap-list">
+        <li>输入框焦点与滚动边界优化</li>
+        <li>权重输入容错，自动修正非法值</li>
+        <li>修复复杂方块状态属性复制丢失</li>
+      </ul>
+    </div>
+    <div class="roadmap-card reveal reveal-delay-2">
+      <div class="roadmap-version">v2.3 → v2.4</div>
+      <div class="roadmap-title">分组管理与预览</div>
+      <div class="roadmap-tag">中期规划</div>
+      <div class="roadmap-sub">新增功能</div>
+      <ul class="roadmap-list">
+        <li>分组分类标签与折叠</li>
+        <li>方块批量移动至其他分组</li>
+        <li>方块悬浮预览与状态预览</li>
+        <li>多组合并导出与注释支持</li>
+      </ul>
+      <div class="roadmap-sub">优化与打磨</div>
+      <ul class="roadmap-list">
+        <li>分组列表滚动独立控制</li>
+        <li>右键菜单归类整理</li>
+        <li>配置自动备份与导入选择</li>
+      </ul>
+    </div>
+    <div class="roadmap-card reveal reveal-delay-3">
+      <div class="roadmap-version">v2.4 → v2.5</div>
+      <div class="roadmap-title">高级指令与偏好</div>
+      <div class="roadmap-tag">远期规划</div>
+      <div class="roadmap-sub">新增功能</div>
+      <ul class="roadmap-list">
+        <li>批量生成 WorldEdit 多区域指令</li>
+        <li>指令格式自定义模板与预校验</li>
+        <li>全局权重规则切换</li>
+        <li>自定义快捷键与主题保存</li>
+      </ul>
+      <div class="roadmap-sub">优化与打磨</div>
+      <ul class="roadmap-list">
+        <li>全局设置独立弹窗</li>
+        <li>列表缓存优化，提升渲染速度</li>
+        <li>配置文件拆分与版本迁移</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
 <!-- ============ Footer ============ -->
 <footer class="footer">
   <div class="footer-content">
@@ -2463,7 +2635,6 @@ body {
       <button class="modal-tab" data-mv="2.0.2">v2.0.2</button>
       <button class="modal-tab" data-mv="2.0.1">v2.0.1</button>
       <button class="modal-tab" data-mv="2.0.0">v2.0.0 <span class="tag">重大更新</span></button>
-      <button class="modal-tab" data-mv="roadmap">未来计划 <span class="tag">规划中</span></button>
       <button class="modal-tab" data-mv="history">历史版本</button>
     </div>
     <div class="modal-body">
@@ -2764,116 +2935,6 @@ body {
         </div>
       </div>
 
-      <!-- 未来计划 -->
-      <div class="mpanel" id="mv-roadmap">
-        <div class="mv-header">
-          <div class="mv-top">
-            <span class="mv-title">Block_ID 未来版本规划</span>
-            <span class="mv-tag alpha">Roadmap</span>
-            <span class="mv-tag major">规划中</span>
-          </div>
-          <div class="mv-desc">以下为后续版本开发规划，具体功能与发布时间可能根据实际情况调整。当前最新版本：v2.1.0-Release。</div>
-        </div>
-
-        <div class="msection">
-          <div class="mtitle"><div class="micon core">1</div>v2.1 → v2.2 变更规划</div>
-          <div class="msub">新增功能</div>
-          <div class="msub-item">收藏夹组增强</div>
-          <ul class="mlist">
-            <li><strong>拖拽排序</strong>：收藏夹方块拖拽排序，调整组内方块上下顺序</li>
-            <li><strong>组导出/导入</strong>：单组导出文本、导入方块组配置，用于分享配置</li>
-            <li><strong>组颜色标签</strong>：给分组设置标记颜色，界面快速区分不同用途分组</li>
-          </ul>
-          <div class="msub-item">历史记录强化</div>
-          <ul class="mlist">
-            <li><strong>加入收藏</strong>：历史条目可直接加入收藏夹</li>
-            <li><strong>记录管理</strong>：支持单条删除、一键清空全部历史记录</li>
-            <li><strong>记录持久化</strong>：游戏重启后历史不会丢失（写入配置文件）</li>
-          </ul>
-          <div class="msub">优化与打磨</div>
-          <div class="msub-item">UI 交互优化</div>
-          <ul class="mlist">
-            <li><strong>输入框焦点优化</strong>：点击界面外部自动取消重命名输入</li>
-            <li><strong>滚动边界修正</strong>：防止滚动越界，微调滚动条手感</li>
-            <li><strong>权重输入容错</strong>：非法数字输入自动修正，避免界面异常</li>
-          </ul>
-          <div class="msub-item">指令复制修复</div>
-          <ul class="mlist">
-            <li><strong>属性复制修复</strong>：修复部分带复杂方块状态的方块复制时属性丢失问题</li>
-          </ul>
-          <div class="msub" style="color:#f87171;">Bug 修复（v2.2）</div>
-          <ul class="mlist">
-            <li>部分特殊方块属性复制不全</li>
-            <li>输入框异常焦点残留问题</li>
-            <li>滚动越界、滚动条边界异常</li>
-            <li>权重输入非法值导致界面卡死</li>
-          </ul>
-        </div>
-
-        <div class="msection">
-          <div class="mtitle"><div class="micon ui">2</div>v2.3 → v2.4 变更规划</div>
-          <div class="msub">新增功能</div>
-          <div class="msub-item">组权限与分类管理</div>
-          <ul class="mlist">
-            <li><strong>分类标签</strong>：支持给分组设置分类标签，多组大量存放时快速筛选分组</li>
-            <li><strong>分组折叠</strong>：收起暂时不用的分组，减少界面信息占用</li>
-            <li><strong>批量移动</strong>：将选中多个方块一次性转移至其他分组</li>
-          </ul>
-          <div class="msub-item">预览辅助功能</div>
-          <ul class="mlist">
-            <li><strong>方块悬浮预览</strong>：鼠标悬停在列表条目，实时渲染方块材质预览</li>
-            <li><strong>方块状态预览</strong>：查看当前设置的方块属性效果</li>
-            <li><strong>预览缩放调节</strong>：调整悬浮预览方块大小</li>
-          </ul>
-          <div class="msub-item">导出增强</div>
-          <ul class="mlist">
-            <li><strong>多组合并导出</strong>：一次性导出多个收藏组的全部方块配置</li>
-            <li><strong>导出注释支持</strong>：在导出文本内添加自定义备注信息</li>
-            <li><strong>编码兼容优化</strong>：避免不同系统打开乱码</li>
-          </ul>
-          <div class="msub">优化与打磨</div>
-          <div class="msub-item">UI 交互优化</div>
-          <ul class="mlist">
-            <li><strong>分组滚动独立</strong>：分组列表滚动独立控制，和方块列表滚动互不干扰</li>
-            <li><strong>右键菜单优化</strong>：操作选项归类整理</li>
-            <li><strong>文本选中快捷键</strong>：输入框文本选中快捷键支持</li>
-          </ul>
-          <div class="msub-item">配置持久化优化</div>
-          <ul class="mlist">
-            <li><strong>配置自动备份</strong>：模组退出时自动生成配置备份文件</li>
-            <li><strong>配置导入选择</strong>：导入时可选择覆盖或者合并现有分组</li>
-          </ul>
-        </div>
-
-        <div class="msection">
-          <div class="mtitle"><div class="micon tech">3</div>v2.4 → v2.5 变更规划</div>
-          <div class="msub">新增功能</div>
-          <div class="msub-item">高级指令生成</div>
-          <ul class="mlist">
-            <li><strong>批量区域指令</strong>：支持批量生成 WorldEdit 多区域指令</li>
-            <li><strong>指令模板</strong>：指令格式自定义模板，按需调整输出指令风格</li>
-            <li><strong>指令预校验</strong>：提前检查方块 ID、方块状态合法性</li>
-          </ul>
-          <div class="msub-item">全局偏好设置</div>
-          <ul class="mlist">
-            <li><strong>权重规则切换</strong>：全局权重计算规则切换</li>
-            <li><strong>自定义快捷键</strong>：给模组界面、画笔功能绑定按键</li>
-            <li><strong>界面主题保存</strong>：记住上次使用的主题与缩放设置</li>
-          </ul>
-          <div class="msub">优化与打磨</div>
-          <div class="msub-item">UI 交互优化</div>
-          <ul class="mlist">
-            <li><strong>全局设置弹窗</strong>：独立弹窗，统一管理所有模组偏好</li>
-            <li><strong>弹窗动画优化</strong>：减少界面切换闪烁</li>
-            <li><strong>列表缓存优化</strong>：大量方块条目时提升界面渲染速度</li>
-          </ul>
-          <div class="msub-item">配置持久化优化</div>
-          <ul class="mlist">
-            <li><strong>配置文件拆分</strong>：分组、历史、模板、设置分开存储，降低单文件损坏影响</li>
-            <li><strong>配置版本迁移</strong>：旧版本配置自动兼容升级</li>
-          </ul>
-        </div>
-      </div>
 
     </div>
   </div>
