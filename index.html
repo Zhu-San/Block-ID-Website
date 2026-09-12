@@ -760,6 +760,10 @@ body {
   border-color: var(--cyan);
   color: var(--cyan);
 }
+.install-panels {
+  overflow: hidden;
+  transition: height 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
 .install-content {
   display: none;
   max-width: 720px;
@@ -767,8 +771,14 @@ body {
 }
 .install-content.active {
   display: block;
-  animation: fadeInUp 0.8s forwards;
+  animation: installIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+.install-content.leaving {
+  display: block;
+  animation: installOut 0.24s ease forwards;
+}
+@keyframes installIn { from { opacity: 0; transform: translateY(20px) scale(0.99); } to { opacity: 1; transform: none; } }
+@keyframes installOut { to { opacity: 0; transform: translateY(-14px) scale(0.99); } }
 .install-step {
   display: flex;
   gap: 24px;
@@ -2455,6 +2465,7 @@ body {
     <button class="install-tab active" data-tab="forge">Forge 版本</button>
     <button class="install-tab" data-tab="fabric">Fabric 版本</button>
   </div>
+  <div class="install-panels">
   <!-- Forge -->
   <div class="install-content active" id="tab-forge">
     <div class="install-step reveal">
@@ -2502,6 +2513,7 @@ body {
         <p>将 <code>Block_ID-fabric-2.1.0-Release.jar</code> 放入 <code>.minecraft/mods</code> 文件夹，启动游戏即可。</p>
       </div>
     </div>
+  </div>
   </div>
 </section>
 
@@ -2873,16 +2885,41 @@ body {
   });
 })();
 
-/* ============ 安装指南 Tab 切换 ============ */
+/* ============ 安装指南 Tab 切换（进出过渡 + 高度 FLIP） ============ */
 (function() {
   const tabs = document.querySelectorAll('.install-tab');
-  const contents = document.querySelectorAll('.install-content');
+  const panels = document.querySelector('.install-panels');
+  let switching = false;
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
+      if (switching) return;
+      switching = true;
+      const next = document.getElementById('tab-' + tab.dataset.tab);
+      const current = document.querySelector('.install-content.active');
       tabs.forEach(t => t.classList.remove('active'));
-      contents.forEach(c => c.classList.remove('active'));
       tab.classList.add('active');
-      document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+      if (current && current !== next) {
+        const oldH = panels ? panels.scrollHeight : 0;
+        if (panels) panels.style.height = oldH + 'px';
+        current.classList.add('leaving');
+        setTimeout(() => {
+          current.classList.remove('active', 'leaving');
+          next.classList.add('active');
+          if (panels) {
+            panels.style.height = 'auto';
+            const newH = panels.scrollHeight;
+            panels.style.height = oldH + 'px';
+            requestAnimationFrame(() => {
+              panels.style.height = newH + 'px';
+            });
+            setTimeout(() => { panels.style.height = ''; }, 540);
+          }
+          switching = false;
+        }, 240);
+      } else {
+        next.classList.add('active');
+        switching = false;
+      }
     });
   });
 })();
