@@ -1956,7 +1956,9 @@ body {
   font-weight: 700;
 }
 .changelog-box {
-  background: #161a24;
+  background:
+    linear-gradient(180deg, rgba(16,19,28,0.92) 0%, rgba(22,26,36,0.96) 100%),
+    url('https://aka.doubaocdn.com/s/5xh24jCRjS') center / cover no-repeat;
   border: 1px solid #2a3145;
   border-radius: 18px;
   overflow: hidden;
@@ -1970,6 +1972,23 @@ body {
   overflow: visible;
   max-height: none;
   padding: 16px 20px 24px;
+}
+#roadmap::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  background:
+    linear-gradient(180deg, rgba(238,241,245,0.88) 0%, rgba(238,241,245,0.96) 100%),
+    url('https://aka.doubaocdn.com/s/5xh24jCRjS') center / cover no-repeat;
+}
+#roadmap .section-header,
+#roadmap .roadmap-grid {
+  position: relative;
+  z-index: 1;
 }
 @media (max-width: 1024px) {
   .changelog-hero { padding: 140px 24px 40px; }
