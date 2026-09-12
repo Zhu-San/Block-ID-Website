@@ -3004,7 +3004,14 @@ body {
           const line = lines[idx];
           const el = document.createElement('div');
           el.className = 'terminal-line';
+          el.style.visibility = 'hidden';
+          el.innerHTML = line.text;
           body.appendChild(el);
+          resizeTerminal();
+          el.style.visibility = '';
+          el.innerHTML = '';
+          el.style.opacity = '0';
+          el.style.transform = 'scaleX(0)';
 
           if (line.type === 'input') {
             const plain = stripHtml(line.text);
@@ -3016,7 +3023,6 @@ body {
             el.innerHTML = line.text;
             el.style.opacity = '1';
             el.style.transform = 'scaleX(1)';
-            resizeTerminal();
             idx++;
           } else {
             revealLine(el, line.text, () => {
