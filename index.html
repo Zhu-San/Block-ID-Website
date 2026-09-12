@@ -1492,11 +1492,11 @@ body {
   box-shadow: var(--shadow-lg);
   position: relative;
   animation: terminalGlow 5s ease-in-out infinite;
-  max-height: 56px;
-  transition: max-height 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+  height: 56px;
+  transition: height 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .terminal.open {
-  max-height: 750px;
+  /* 高度由 JS 随内容动态控制 */
 }
 @keyframes terminalGlow {
   0%, 100% { box-shadow: 0 12px 40px rgba(2,132,199,0.08); }
@@ -1554,7 +1554,6 @@ body {
   font-family: var(--font-mono);
   font-size: 14px;
   line-height: 2.1;
-  min-height: 460px;
   position: relative;
 }
 .terminal-line {
@@ -2924,9 +2923,10 @@ body {
   });
 })();
 
-/* ============ 终端打字动画 ============ */
+/* ============ 终端打字动画（窗口随内容平滑拉长） ============ */
 (function() {
   const body = document.getElementById('terminal-body');
+  const terminalEl = body.closest('.terminal');
   const lines = [
     { type: 'input', text: '<span class="prompt">[BlockID]</span> <span class="command">按下 G 键打开主界面</span>' },
     { type: 'output', text: '<span class="output">> 界面已加载 · 三列布局：全部 / 常用 / 已选</span>' },
@@ -2956,72 +2956,84 @@ body {
     return tmp.textContent || tmp.innerText || '';
   }
 
-  const terminalEl = body.closest('.terminal');
+  function resizeTerminal() {
+    if (!terminalEl) return;
+    const header = terminalEl.querySelector('.terminal-header');
+    const headerH = header ? header.offsetHeight : 0;
+    const bodyH = body.scrollHeight;
+    terminalEl.style.height = (headerH + bodyH) + 'px';
+  }
+
   const observer = new IntersectionObserver((entries) => {
     if (entries[0].isIntersecting) {
       observer.disconnect();
-      // 触发窗口高度展开动画
       if (terminalEl) terminalEl.classList.add('open');
-      // 等待展开动画进行一部分后再开始打字
       setTimeout(() => {
         let idx = 0;
 
-      // 逐字打字（用于输入行）
-      function typeLine(lineEl, plainText, fullHtml, speed, done) {
-        let pos = 0;
-        lineEl.style.opacity = '1';
-        lineEl.style.transform = 'scaleX(1)';
-        function tick() {
-          if (pos <= plainText.length) {
-            lineEl.textContent = plainText.substring(0, pos);
-            pos++;
-            setTimeout(tick, speed);
-          } else {
-            lineEl.innerHTML = fullHtml;
+        function typeLine(lineEl, plainText, fullHtml, speed, done) {
+          let pos = 0;
+          lineEl.style.opacity = '1';
+          lineEl.style.transform = 'scaleX(1)';
+          function tick() {
+            if (pos <= plainText.length) {
+              lineEl.textContent = plainText.substring(0, pos);
+              pos++;
+              setTimeout(tick, speed);
+            } else {
+              lineEl.innerHTML = fullHtml;
+              resizeTerminal();
+              if (done) done();
+            }
+          }
+          tick();
+        }
+
+        function revealLine(lineEl, html, done) {
+          lineEl.innerHTML = html;
+          lineEl.classList.add('stretched');
+          setTimeout(() => {
+            resizeTerminal();
             if (done) done();
+          }, 550);
+        }
+
+        function next() {
+          if (idx >= lines.length) return;
+          const line = lines[idx];
+          const el = document.createElement('div');
+          el.className = 'terminal-line';
+          body.appendChild(el);
+
+          if (line.type === 'input') {
+            const plain = stripHtml(line.text);
+            typeLine(el, plain, line.text, 38, () => {
+              idx++;
+              setTimeout(next, 450);
+            });
+          } else if (line.type === 'cursor') {
+            el.innerHTML = line.text;
+            el.style.opacity = '1';
+            el.style.transform = 'scaleX(1)';
+            resizeTerminal();
+            idx++;
+          } else {
+            revealLine(el, line.text, () => {
+              idx++;
+              setTimeout(next, 200);
+            });
           }
         }
-        tick();
-      }
-
-      // 淡入揭示（用于输出行）- 从左到右拉长展开
-      function revealLine(lineEl, html, done) {
-        lineEl.innerHTML = html;
-        lineEl.classList.add('stretched');
-        setTimeout(done || (() => {}), 550);
-      }
-
-      function next() {
-        if (idx >= lines.length) return;
-        const line = lines[idx];
-        const el = document.createElement('div');
-        el.className = 'terminal-line';
-        body.appendChild(el);
-
-        if (line.type === 'input') {
-          const plain = stripHtml(line.text);
-          typeLine(el, plain, line.text, 38, () => {
-            idx++;
-            setTimeout(next, 450);
-          });
-        } else if (line.type === 'cursor') {
-          el.innerHTML = line.text;
-          el.style.opacity = '1';
-          el.style.transform = 'scaleX(1)';
-          idx++;
-        } else {
-          revealLine(el, line.text, () => {
-            idx++;
-            setTimeout(next, 200);
-          });
-        }
-      }
-      next();
-      }, 450);
+        next();
+      }, 300);
     }
   }, { threshold: 0.1 });
   if (terminalEl) observer.observe(terminalEl);
   else observer.observe(body);
+
+  window.addEventListener('resize', () => {
+    if (terminalEl && terminalEl.classList.contains('open')) resizeTerminal();
+  });
 })();
 
 /* ============ FAQ 手风琴 ============ */
