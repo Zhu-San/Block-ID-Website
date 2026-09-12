@@ -7,7 +7,7 @@
 <link rel="icon" type="image/png" href="https://aka.doubaocdn.com/s/GaYX7u3vKU">
 <link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap">
 <style>
-
+/* ============ 全局变量与重置 ============ */
 :root {
   --bg-deep: #eef1f5;
   --bg-panel: #ffffff;
@@ -43,7 +43,7 @@ body {
   line-height: 1.7;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
-  
+  /* 现代建筑网格底纹（类似建筑图纸/幕墙分格） */
   background-image:
     linear-gradient(rgba(15,23,42,0.025) 1px, transparent 1px),
     linear-gradient(90deg, rgba(15,23,42,0.025) 1px, transparent 1px);
@@ -52,6 +52,7 @@ body {
 
 ::selection { background: var(--cyan); color: #fff; }
 
+/* ============ 方块粒子背景 Canvas ============ */
 #particle-canvas {
   position: fixed;
   top: 0; left: 0;
@@ -60,6 +61,7 @@ body {
   pointer-events: none;
 }
 
+/* 鼠标跟随光晕 */
 #cursor-glow {
   position: fixed;
   width: 500px; height: 500px;
@@ -71,6 +73,7 @@ body {
   transition: opacity 0.5s;
 }
 
+/* ============ 导航栏 ============ */
 .navbar {
   position: fixed;
   top: 0; left: 0; right: 0;
@@ -79,7 +82,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: all 0.4s var(--ease-out);
   background: transparent;
 }
 .navbar.scrolled {
@@ -156,6 +159,7 @@ body {
   background: rgba(217,119,6,0.08);
 }
 
+/* ============ Hero 区 ============ */
 .hero {
   position: relative;
   z-index: 2;
@@ -280,7 +284,7 @@ body {
   border: 1px solid var(--border-light);
   background: var(--bg-card);
   color: var(--text-secondary);
-  transition: all 0.45s;
+  transition: all 0.15s var(--ease-out);
   box-shadow: var(--shadow-sm);
 }
 .hero-tag:hover {
@@ -319,7 +323,7 @@ body {
   gap: 10px;
   cursor: pointer;
   border: none;
-  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: all 0.3s var(--ease-out);
   position: relative;
   overflow: hidden;
 }
@@ -372,6 +376,7 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* ============ 快速跳转卡 ============ */
 .quick-nav {
   position: relative;
   z-index: 3;
@@ -391,7 +396,7 @@ body {
   padding: 22px 18px;
   text-decoration: none;
   color: var(--text-primary);
-  transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: all 0.5s var(--ease-out);
   box-shadow: var(--shadow-md);
   display: flex;
   flex-direction: column;
@@ -442,7 +447,7 @@ body {
 .quick-nav-arrow {
   opacity: 0;
   transform: translateX(-6px);
-  transition: all 0.45s;
+  transition: all 0.15s var(--ease-out);
   color: var(--cyan);
   flex-shrink: 0;
 }
@@ -451,6 +456,7 @@ body {
   transform: translateX(0);
 }
 
+/* ============ 通用 Section ============ */
 .section {
   position: relative;
   z-index: 2;
@@ -494,15 +500,20 @@ body {
   margin: 0 auto;
 }
 
+/* 滚动入场动画 */
 .reveal {
   opacity: 0;
-  transform: translateY(40px);
-  transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
-              transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translateY(28px);
+  filter: blur(8px);
+  transition: opacity 0.65s var(--ease-out),
+              transform 0.65s var(--ease-out),
+              filter 0.65s var(--ease-out);
+  will-change: opacity, transform, filter;
 }
 .reveal.visible {
   opacity: 1;
   transform: translateY(0);
+  filter: blur(0);
 }
 .reveal-delay-1 { transition-delay: 0.1s; }
 .reveal-delay-2 { transition-delay: 0.2s; }
@@ -510,6 +521,7 @@ body {
 .reveal-delay-4 { transition-delay: 0.4s; }
 .reveal-delay-5 { transition-delay: 0.5s; }
 
+/* ============ 模组简介区 ============ */
 .intro-grid {
   display: grid;
   grid-template-columns: 1.2fr 1fr;
@@ -578,6 +590,7 @@ body {
   font-family: var(--font-mono);
 }
 
+/* ============ 功能卡片区 ============ */
 .features-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -588,7 +601,7 @@ body {
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 36px 28px;
-  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: all 0.4s var(--ease-out);
   position: relative;
   overflow: hidden;
   box-shadow: var(--shadow-sm);
@@ -669,6 +682,10 @@ body {
   border: 1px solid var(--border);
 }
 
+
+
+
+/* ============ 性能数据区 ============ */
 .perf-section {
   background: linear-gradient(180deg, rgba(2,132,199,0.035) 0%, transparent 60%);
 }
@@ -714,9 +731,10 @@ body {
   background: linear-gradient(90deg, var(--cyan), var(--green));
   border-radius: 2px;
   width: 0;
-  transition: width 1.8s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: width 1.8s var(--ease-out);
 }
 
+/* ============ 安装指南区 ============ */
 .install-tabs {
   display: flex;
   justify-content: center;
@@ -733,7 +751,7 @@ body {
   background: var(--bg-card);
   color: var(--text-secondary);
   cursor: pointer;
-  transition: all 0.45s;
+  transition: all 0.15s var(--ease-out);
   box-shadow: var(--shadow-sm);
 }
 .install-tab.active {
@@ -748,7 +766,7 @@ body {
 }
 .install-panels {
   overflow: hidden;
-  transition: height 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: height 0.45s var(--ease-out);
 }
 .install-content {
   display: none;
@@ -757,11 +775,11 @@ body {
 }
 .install-content.active {
   display: block;
-  animation: installIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: installIn 0.4s var(--ease-out) both;
 }
 .install-content.leaving {
   display: block;
-  animation: installOut 0.24s ease forwards;
+  animation: installOut 0.2s var(--ease-in) forwards;
 }
 @keyframes installIn { from { opacity: 0; transform: translateY(20px) scale(0.99); } to { opacity: 1; transform: none; } }
 @keyframes installOut { to { opacity: 0; transform: translateY(-14px) scale(0.99); } }
@@ -771,7 +789,7 @@ body {
   padding: 24px 0;
   border-bottom: 1px solid var(--border);
   align-items: flex-start;
-  transition: all 0.45s;
+  transition: all 0.15s var(--ease-out);
 }
 .install-step:last-child { border-bottom: none; }
 .install-step:hover {
@@ -790,7 +808,7 @@ body {
   font-weight: 800;
   font-size: 18px;
   color: var(--cyan);
-  transition: all 0.45s;
+  transition: all 0.15s var(--ease-out);
   box-shadow: var(--shadow-sm);
 }
 .install-step:hover .step-number {
@@ -819,6 +837,7 @@ body {
   border: 1px solid var(--border);
 }
 
+/* ============ 下载来源卡片 ============ */
 .download-card {
   max-width: 720px;
   margin: 0 auto 48px;
@@ -973,7 +992,7 @@ body {
   color: var(--cyan);
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.45s;
+  transition: all 0.15s var(--ease-out);
   animation: hintPulse 2.6s ease-in-out infinite;
 }
 .download-click-hint:hover {
@@ -998,13 +1017,14 @@ body {
   60% { transform: translateY(0) scale(0.95); }
 }
 
+/* ============ Toast 提示 ============ */
 .toast-overlay {
   position: fixed;
   bottom: 32px;
   left: 50%;
   transform: translateX(-50%) translateY(150%);
   z-index: 9999;
-  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.45s var(--ease-out);
   pointer-events: none;
 }
 .toast-overlay.show {
@@ -1064,7 +1084,7 @@ body {
   font-weight: 600;
   cursor: pointer;
   border: none;
-  transition: all 0.45s;
+  transition: all 0.15s var(--ease-out);
   font-family: var(--font-sans);
   white-space: nowrap;
 }
@@ -1097,7 +1117,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.45s;
+  transition: all 0.15s var(--ease-out);
   font-size: 16px;
   line-height: 1;
 }
@@ -1106,6 +1126,7 @@ body {
   color: #e2e8f0;
 }
 
+/* ============ 版本历史 ============ */
 .version-history {
   max-width: 720px;
   margin: 0 auto 48px;
@@ -1143,7 +1164,7 @@ body {
   gap: 14px;
   padding: 12px 0;
   border-bottom: 1px solid var(--border);
-  transition: all 0.45s;
+  transition: all 0.15s var(--ease-out);
 }
 .version-item:last-child { border-bottom: none; }
 .version-item:hover { padding-left: 8px; }
@@ -1232,6 +1253,7 @@ body {
 }
 .version-footnote strong { color: var(--gold); font-weight: 600; }
 
+/* ============ 更新日志入口 ============ */
 .changelog-link-btn { color: var(--accent); }
 .nav-changelog-link { color: var(--accent-2, var(--text-secondary)); position: relative; }
 .changelog-badge {
@@ -1257,7 +1279,7 @@ body {
   border: 1px solid #2a3145; border-radius: 18px;
   display: flex; flex-direction: column; overflow: hidden;
   box-shadow: 0 24px 80px rgba(0,0,0,0.6);
-  transform: translateY(24px) scale(0.97); transition: transform 0.5s cubic-bezier(0.22,1,0.36,1);
+  transform: translateY(24px) scale(0.97); transition: transform 0.5s var(--ease-out);
 }
 .modal-overlay.open .modal-box { transform: translateY(0) scale(1); }
 .modal-header {
@@ -1272,7 +1294,7 @@ body {
   border: 1px solid #2a3145; background: #10131c;
   color: #9aa3b8; font-size: 18px; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  transition: all 0.45s;
+  transition: all 0.15s var(--ease-out);
 }
 .modal-close:hover { color: #f87171; border-color: #f87171; transform: rotate(90deg); }
 .modal-close:disabled { opacity: 0.3; cursor: not-allowed; }
@@ -1304,7 +1326,7 @@ body {
   padding: 5px 13px; border-radius: 9px 9px 0 0;
   border: 1px solid transparent; background: transparent;
   color: #6b7388; font-size: 12.5px; cursor: pointer;
-  transition: all 0.45s; font-weight: 500; border-bottom: 2px solid transparent;
+  transition: all 0.15s var(--ease-out); font-weight: 500; border-bottom: 2px solid transparent;
 }
 .modal-tab:hover { color: #e8eaf0; background: rgba(74,138,213,0.06); }
 .modal-tab.active {
@@ -1323,7 +1345,7 @@ body {
 .modal-body::-webkit-scrollbar { width: 6px; }
 .modal-body::-webkit-scrollbar-thumb { background: #2a3145; border-radius: 3px; }
 .modal-body::-webkit-scrollbar-track { background: transparent; }
-.mpanel { display: none; animation: mfadeIn 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+.mpanel { display: none; animation: mfadeIn 0.5s var(--ease-out); }
 .mpanel.active { display: block; }
 @keyframes mfadeIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 .mv-header {
@@ -1417,6 +1439,7 @@ body {
   .msection { padding: 16px; }
 }
 
+/* Hero 区闭源提示 */
 .hero-open-notice {
   margin-top: 20px;
   display: inline-flex;
@@ -1446,7 +1469,7 @@ body {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.5; transform: scale(0.8); }
 }
-
+/* Hero 区下载提示 */
 .hero-download-hint {
   margin-top: 28px;
   font-family: var(--font-mono);
@@ -1461,6 +1484,7 @@ body {
   font-size: 15px;
 }
 
+/* ============ 终端演示区 ============ */
 .terminal-section {
   max-width: 900px;
 }
@@ -1473,16 +1497,16 @@ body {
   position: relative;
   animation: terminalGlow 5s ease-in-out infinite;
   height: 56px;
-  transition: height 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: height 0.45s var(--ease-out);
 }
 .terminal.open {
-  
+  /* 高度由 JS 随内容动态控制 */
 }
 @keyframes terminalGlow {
   0%, 100% { box-shadow: 0 12px 40px rgba(2,132,199,0.08); }
   50% { box-shadow: 0 16px 60px rgba(2,132,199,0.18); }
 }
-
+/* 扫描线效果 */
 .terminal::after {
   content: '';
   position: absolute;
@@ -1549,7 +1573,7 @@ body {
   transform: scaleX(1);
 }
 .terminal-line.stretched {
-  animation: stretchReveal 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: stretchReveal 0.4s var(--ease-out) forwards;
 }
 @keyframes stretchReveal {
   0% {
@@ -1582,6 +1606,7 @@ body {
   animation: cursorBlink 0.8s step-end infinite;
 }
 
+/* ============ FAQ 区 ============ */
 .faq-list {
   max-width: 800px;
   margin: 0 auto;
@@ -1591,7 +1616,7 @@ body {
   border-radius: 12px;
   margin-bottom: 16px;
   overflow: hidden;
-  transition: all 0.45s;
+  transition: all 0.15s var(--ease-out);
   background: var(--bg-card);
   box-shadow: var(--shadow-sm);
 }
@@ -1628,7 +1653,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.45s;
+  transition: all 0.15s var(--ease-out);
 }
 .faq-item.open .faq-toggle {
   background: var(--cyan);
@@ -1644,7 +1669,7 @@ body {
 .faq-answer {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.55s cubic-bezier(0.22, 1, 0.36, 1), padding 0.4s;
+  transition: max-height 0.55s var(--ease-out), padding 0.4s;
 }
 .faq-item.open .faq-answer {
   max-height: 300px;
@@ -1671,6 +1696,9 @@ body {
   border: 1px solid var(--border);
 }
 
+
+
+/* ============ 原版介绍图展示区 ============ */
 .preview-section {
   text-align: center;
 }
@@ -1697,6 +1725,7 @@ body {
   color: var(--text-muted);
 }
 
+/* ============ Footer ============ */
 .footer {
   position: relative;
   z-index: 2;
@@ -1735,6 +1764,7 @@ body {
   text-decoration: none;
 }
 
+/* ============ 响应式 ============ */
 @media (max-width: 968px) {
   .navbar { padding: 14px 24px; }
   .nav-links { display: none; }
@@ -1756,6 +1786,7 @@ body {
   .hero-tag { font-size: 11px; padding: 4px 10px; }
 }
 
+/* 尊重 reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -1764,13 +1795,31 @@ body {
   }
   #particle-canvas { display: none; }
   #cursor-glow { display: none; }
+
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+  .mpanel.leaving, .install-content.leaving {
+    animation: none !important;
+    opacity: 0;
+  }
+  .metro-train { transition: none !important; }
+  [class*="Pulse"], [class*="pulse"], .logo-pulse, .qq-pulse {
+    animation: none !important;
+  }
 }
 
+/* ============ 设计精修 (design-taste-frontend) ============ */
 :root {
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-soft: cubic-bezier(0.33, 1, 0.68, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* 标题字距精修 */
 .section-title,
 .roadmap-title,
 .download-card-title,
@@ -1778,6 +1827,7 @@ body {
   letter-spacing: -0.015em;
 }
 
+/* 全局交互过渡统一（平滑） */
 button,
 .btn,
 a,
@@ -1789,6 +1839,7 @@ a,
   transition-timing-function: var(--ease-out);
 }
 
+/* 按压物理反馈 */
 button:active,
 .btn:active,
 .quick-nav-card:active,
@@ -1798,22 +1849,26 @@ button:active,
   transform: translateY(1px) scale(0.98);
 }
 
+/* 卡片悬停精致提升 */
 .quick-nav-card:hover,
 .download-card:hover,
 .roadmap-card:hover {
   box-shadow: 0 20px 48px rgba(2, 132, 199, 0.10);
 }
 
+/* 滚动入场更平滑 */
 .reveal {
   transition-timing-function: var(--ease-out);
 }
 
+/* 键盘焦点可见性 */
 :focus-visible {
   outline: 2px solid var(--cyan);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
+/* 减少动效偏好：尊重系统设置 */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -1823,6 +1878,9 @@ button:active,
   }
 }
 
+
+
+/* ============ 浅色主题精修（立体感与高级感） ============ */
 @media (prefers-color-scheme: light), (prefers-color-scheme: no-preference) {
 :root {
   --shadow-sm: 0 1px 2px rgba(15,23,42,0.05), 0 3px 10px rgba(15,23,42,0.04);
@@ -1830,6 +1888,7 @@ button:active,
   --shadow-lg: 0 4px 10px rgba(15,23,42,0.06), 0 30px 64px rgba(15,23,42,0.13);
 }
 
+/* 页面顶部柔光，向下渐沉 */
 body {
   background-image:
     radial-gradient(1000px 500px at 50% -5%, rgba(255,255,255,0.8) 0%, transparent 65%),
@@ -1838,10 +1897,12 @@ body {
   background-size: auto, 48px 48px, 48px 48px;
 }
 
+/* hero 顶部聚焦光晕 */
 .hero::before {
   background: radial-gradient(ellipse 100% 75% at 50% -5%, rgba(255,255,255,0.5) 0%, transparent 70%);
 }
 
+/* 卡片顶部高光（纸张质感） */
 .quick-nav-card,
 .roadmap-card,
 .stat-card,
@@ -1849,6 +1910,7 @@ body {
   background-image: linear-gradient(180deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 30%);
 }
 
+/* 卡片悬停：轻微上浮 + 层次青色阴影 */
 .quick-nav-card:hover,
 .roadmap-card:hover,
 .stat-card:hover {
@@ -1856,25 +1918,30 @@ body {
   box-shadow: 0 2px 6px rgba(15,23,42,0.06), 0 24px 48px rgba(2,132,199,0.10);
 }
 
+/* FAQ 悬停：柔和层次（不上浮，避免干扰展开交互） */
 .faq-item:hover {
   box-shadow: 0 2px 6px rgba(15,23,42,0.05), 0 16px 32px rgba(15,23,42,0.07);
 }
 
+/* 下载卡：青色层次阴影 + 内高光 */
 .download-card {
   box-shadow: 0 2px 6px rgba(2,132,199,0.05), 0 18px 44px rgba(2,132,199,0.10), inset 0 1px 0 rgba(255,255,255,0.5);
 }
 
+/* 主按钮立体：顶部高光 + 层次青色阴影 + 内高光 */
 .btn-primary {
   background: linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 48%), linear-gradient(135deg, var(--cyan), var(--cyan-dim));
   box-shadow: 0 1px 2px rgba(2,132,199,0.35), 0 10px 24px rgba(2,132,199,0.28), inset 0 1px 0 rgba(255,255,255,0.22);
 }
 
+/* 次级按钮立体 */
 .btn-secondary {
   box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 8px 20px rgba(15,23,42,0.06), inset 0 1px 0 rgba(255,255,255,0.6);
 }
 
 }
 
+/* ============ 暗色模式（跟随系统主题） ============ */
 @media (prefers-color-scheme: dark) {
   :root {
     --bg-deep: #0d1220;
@@ -1904,7 +1971,7 @@ body {
       linear-gradient(90deg, rgba(255,255,255,0.026) 1px, transparent 1px);
   }
 
-  
+  /* hero：深色遮罩保留背景图 */
   .hero {
     background-image:
       linear-gradient(180deg, rgba(9,14,25,0.82) 0%, rgba(9,14,25,0.90) 50%, rgba(13,18,32,0.98) 100%),
@@ -1959,10 +2026,12 @@ body {
 </head>
 <body>
 
+<!-- 方块粒子背景 -->
 <canvas id="particle-canvas"></canvas>
-
+<!-- 鼠标光晕 -->
 <div id="cursor-glow"></div>
 
+<!-- ============ 导航栏 ============ -->
 <nav class="navbar" id="navbar">
   <a href="#" class="nav-logo">
     <div class="nav-logo-icon"><img src="https://aka.doubaocdn.com/s/GaYX7u3vKU" alt="Block ID Logo"></div>
@@ -1980,6 +2049,7 @@ body {
   <div class="nav-version">v2.1.0-Release</div>
 </nav>
 
+<!-- ============ Hero 区 ============ -->
 <section class="hero">
   <div class="hero-badge">
     <span class="dot"></span>
@@ -2019,6 +2089,7 @@ body {
   <p class="hero-download-hint">抢先体验版：加入 QQ 群 <span class="qq-num">1121599701</span> 下载 · CurseForge 已可直接搜索下载</p>
 </section>
 
+<!-- ============ 快速跳转卡 ============ -->
 <div class="quick-nav">
   <div class="quick-nav-grid">
     <a href="#features" class="quick-nav-card reveal">
@@ -2052,6 +2123,7 @@ body {
   </div>
 </div>
 
+<!-- ============ 模组简介区 ============ -->
 <section class="section" id="intro">
   <div class="section-header reveal">
     <div class="section-label">ABOUT</div>
@@ -2091,6 +2163,7 @@ body {
   </div>
 </section>
 
+<!-- ============ 核心功能区 ============ -->
 <section class="section" id="features">
   <div class="section-header reveal">
     <div class="section-label">FEATURES</div>
@@ -2098,7 +2171,7 @@ body {
     <p class="section-desc">每一个细节都为提升你的建造效率而设计</p>
   </div>
   <div class="features-grid">
-    
+    <!-- 功能1 -->
     <div class="feature-card reveal reveal-delay-1">
       <div class="feature-icon green">
         <svg viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -2108,7 +2181,7 @@ body {
         实现全拼（<code>shitou</code>）、声母缩写（<code>st</code>）、多音字混合（输入 <code>shanzhang</code> 或 <code>shanchang</code> 均可精准搜出"闪长岩"）的无缝匹配。支持中文原名、英文 ID、拼音全拼、拼音首字母混合模糊匹配。
       </p>
     </div>
-    
+    <!-- 功能2 -->
     <div class="feature-card reveal reveal-delay-2">
       <div class="feature-icon gold">
         <svg viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
@@ -2118,7 +2191,7 @@ body {
         在"全部方块"点击 <code>+</code> 加入常用，点击 <code>−</code> 移除。收藏列表自动保存至本地配置文件 <code>.minecraft/config/block_id.json</code>，即便游戏重开或服务器更换，专属常用列表永远不会丢失。
       </p>
     </div>
-    
+    <!-- 功能3 -->
     <div class="feature-card reveal reveal-delay-3">
       <div class="feature-icon cyan">
         <svg viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
@@ -2128,7 +2201,7 @@ body {
         全 UI 采用动态坐标计算，无论窗口大小如何拉伸，搜索框、按钮、列表均无重叠。支持可拖拽的可视化滑动条，自动过滤不可放置的非方块物品，原生搜索框拥有半透明多语言占位符。
       </p>
     </div>
-    
+    <!-- 功能4 -->
     <div class="feature-card reveal reveal-delay-1">
       <div class="feature-icon green">
         <svg viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
@@ -2138,7 +2211,7 @@ body {
         按下 <code>C</code> 键即刻复制手持物品的完整方块 ID（如 <code>minecraft:stone</code>）；按下 <code>G</code> 键秒开主界面。无需切换窗口、无需任何手动操作，点开即用。
       </p>
     </div>
-    
+    <!-- 功能5 -->
     <div class="feature-card reveal reveal-delay-2">
       <div class="feature-icon gold">
         <svg viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
@@ -2148,7 +2221,7 @@ body {
         完美集成 <code>//set</code> 与 <code>//replace</code> 指令。支持方块属性设置（如 <code>minecraft:stone_slab[type=top]</code>）与放置率权重（如 <code>50%stone,50%grass</code>），滑块拖动或 Ctrl+左键精确输入，总和自动归一化。多选后一键生成完整指令并复制到剪贴板。
       </p>
     </div>
-    
+    <!-- 功能6 -->
     <div class="feature-card reveal reveal-delay-3">
       <div class="feature-icon cyan">
         <svg viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
@@ -2161,6 +2234,7 @@ body {
   </div>
 </section>
 
+<!-- ============ 性能数据区 ============ -->
 <section class="perf-section">
   <div class="section" style="padding-top:80px;padding-bottom:80px;">
     <div class="perf-grid">
@@ -2188,6 +2262,7 @@ body {
   </div>
 </section>
 
+<!-- ============ 终端演示区 ============ -->
 <section class="section terminal-section" id="demo">
   <div class="section-header reveal">
     <div class="section-label">DEMO</div>
@@ -2202,11 +2277,12 @@ body {
       <span class="terminal-title">minecraft - block_id - 80x24</span>
     </div>
     <div class="terminal-body" id="terminal-body">
-      
+      <!-- 由 JS 逐行写入 -->
     </div>
   </div>
 </section>
 
+<!-- ============ 安装指南区 ============ -->
 <section class="section" id="install">
   <div class="section-header reveal">
     <div class="section-label">INSTALL</div>
@@ -2214,7 +2290,7 @@ body {
     <p class="section-desc">选择你的加载器，三步完成安装</p>
   </div>
 
-  
+  <!-- 下载来源卡片 -->
   <div class="download-card reveal">
     <div class="download-card-header">
       <div class="download-card-icon">
@@ -2283,7 +2359,7 @@ body {
     </div>
   </div>
 
-  
+  <!-- 版本历史 -->
   <div class="version-history reveal">
     <div class="version-history-title">Version History · 版本历史</div>
     <div class="version-list">
@@ -2410,7 +2486,7 @@ body {
     <button class="install-tab" data-tab="fabric">Fabric 版本</button>
   </div>
   <div class="install-panels">
-  
+  <!-- Forge -->
   <div class="install-content active" id="tab-forge">
     <div class="install-step reveal">
       <div class="step-number">1</div>
@@ -2434,7 +2510,7 @@ body {
       </div>
     </div>
   </div>
-  
+  <!-- Fabric -->
   <div class="install-content" id="tab-fabric">
     <div class="install-step reveal">
       <div class="step-number">1</div>
@@ -2461,6 +2537,7 @@ body {
   </div>
 </section>
 
+<!-- ============ FAQ 区 ============ -->
 <section class="section" id="faq">
   <div class="section-header reveal">
     <div class="section-label">FAQ</div>
@@ -2537,6 +2614,8 @@ body {
   </div>
 </section>
 
+
+<!-- ============ Footer ============ -->
 <footer class="footer">
   <div class="footer-content">
     <div class="footer-info">
@@ -2554,6 +2633,7 @@ body {
   </div>
 </footer>
 
+<!-- ============ Toast 提示 ============ -->
 <div class="toast-overlay" id="toast">
   <div class="toast">
     <button class="toast-close" onclick="hideToast()" aria-label="关闭">×</button>
@@ -2571,6 +2651,7 @@ body {
   </div>
 </div>
 
+<!-- ============ 使用协议弹窗 ============ -->
 <div class="modal-overlay" id="license-modal">
   <div class="modal-box">
     <div class="modal-header">
@@ -3157,6 +3238,20 @@ function downloadQQ() {
     }
   }, 600);
 })();
+
+/* ============ 无限动画离屏暂停 (impeccable) ============ */
+(function() {
+  const pulseSelector = '[class*="Pulse"], [class*="pulse"], .hero-badge .dot, .hero-open-notice .notice-dot, .logo-pulse, .qq-pulse, .badge-pulse, .hint-pulse, .dot-pulse';
+  const pulseEls = document.querySelectorAll(pulseSelector);
+  if (pulseEls.length === 0) return;
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      entry.target.style.animationPlayState = entry.isIntersecting ? 'running' : 'paused';
+    });
+  }, { threshold: 0.01 });
+  pulseEls.forEach(el => observer.observe(el));
+})();
+
 </script>
 </body>
 </html>
