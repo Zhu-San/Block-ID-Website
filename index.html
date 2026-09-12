@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Block ID — 方块ID · WorldEdit 指令 · 智能搜索</title>
+<title>Block ID - 方块ID · WorldEdit 指令 · 智能搜索</title>
 <link rel="icon" type="image/png" href="https://aka.doubaocdn.com/s/GaYX7u3vKU">
 <link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap">
 <style>
@@ -163,13 +163,13 @@ body {
 .hero {
   position: relative;
   z-index: 2;
-  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 120px 24px 80px;
+  padding: 96px 24px 72px;
   background-image:
     linear-gradient(180deg, rgba(238,241,245,0.72) 0%, rgba(238,241,245,0.85) 50%, rgba(238,241,245,0.97) 100%),
     url('https://aka.doubaocdn.com/s/5xh24jCRjS');
@@ -369,50 +369,6 @@ body {
   background: rgba(251,191,36,0.05);
   transform: translateY(-3px);
   box-shadow: var(--shadow-md);
-}
-
-/* 滚动提示 */
-.scroll-hint {
-  position: absolute;
-  bottom: 32px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  color: var(--text-muted);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  opacity: 0;
-  animation: fadeInUp 1.2s 1.9s forwards;
-  z-index: 1;
-  transition: opacity 0.6s, transform 0.6s;
-  pointer-events: none;
-}
-.scroll-hint.hidden {
-  opacity: 0 !important;
-  transform: translateX(-50%) translateY(10px);
-}
-.scroll-hint .mouse {
-  width: 24px; height: 38px;
-  border: 2px solid var(--text-muted);
-  border-radius: 12px;
-  position: relative;
-}
-.scroll-hint .mouse::after {
-  content: '';
-  position: absolute;
-  top: 6px; left: 50%;
-  transform: translateX(-50%);
-  width: 4px; height: 8px;
-  background: var(--green);
-  border-radius: 2px;
-  animation: scrollWheel 2s infinite;
-}
-@keyframes scrollWheel {
-  0% { opacity: 1; top: 6px; }
-  100% { opacity: 0; top: 20px; }
 }
 
 @keyframes fadeInUp {
@@ -1844,6 +1800,72 @@ body {
   #particle-canvas { display: none; }
   #cursor-glow { display: none; }
 }
+
+/* ============ 设计精修 (design-taste-frontend) ============ */
+:root {
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-soft: cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+/* 标题字距精修 */
+.section-title,
+.roadmap-title,
+.download-card-title,
+.quick-nav-title {
+  letter-spacing: -0.015em;
+}
+
+/* 全局交互过渡统一（平滑） */
+button,
+.btn,
+a,
+.quick-nav-card,
+.download-card,
+.download-click-hint,
+.roadmap-card,
+.version-item {
+  transition-timing-function: var(--ease-out);
+}
+
+/* 按压物理反馈 */
+button:active,
+.btn:active,
+.quick-nav-card:active,
+.download-click-hint:active,
+.roadmap-card:active,
+.version-item:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+/* 卡片悬停精致提升 */
+.quick-nav-card:hover,
+.download-card:hover,
+.roadmap-card:hover {
+  box-shadow: 0 20px 48px rgba(2, 132, 199, 0.10);
+}
+
+/* 滚动入场更平滑 */
+.reveal {
+  transition-timing-function: var(--ease-out);
+}
+
+/* 键盘焦点可见性 */
+:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* 减少动效偏好：尊重系统设置 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1961,7 +1983,7 @@ body {
         采用<span class="highlight-gold">三列动态布局</span>（全部 / 常用 / 已选），依托强大的多音字智能拼音引擎，让你用中文习惯丝滑操作，显著提升创造与生存效率。
       </p>
       <p>
-        从按下 <code style="font-family:var(--font-mono);font-size:13px;background:var(--bg-card);padding:2px 8px;border-radius:4px;color:var(--gold);border:1px solid var(--border)">G</code> 键打开界面，到搜索、选择、复制指令——整个过程不超过 3 秒。
+        从按下 <code style="font-family:var(--font-mono);font-size:13px;background:var(--bg-card);padding:2px 8px;border-radius:4px;color:var(--gold);border:1px solid var(--border)">G</code> 键打开界面，到搜索、选择、复制指令，整个过程不超过 3 秒。
       </p>
     </div>
     <div class="intro-stats">
@@ -2096,7 +2118,7 @@ body {
       <span class="terminal-dot red"></span>
       <span class="terminal-dot yellow"></span>
       <span class="terminal-dot green"></span>
-      <span class="terminal-title">minecraft — block_id — 80x24</span>
+      <span class="terminal-title">minecraft - block_id - 80x24</span>
     </div>
     <div class="terminal-body" id="terminal-body">
       <!-- 由 JS 逐行写入 -->
@@ -2257,7 +2279,7 @@ body {
         <span class="version-tag alpha">Alpha</span>
         <span class="version-platforms">
           <span class="version-platform forge">Forge</span>
-          <span class="version-platform none">—</span>
+          <span class="version-platform none">-</span>
         </span>
         <span class="version-status deprecated">早期测试版</span>
       </div>
@@ -2266,7 +2288,7 @@ body {
         <span class="version-tag alpha">Alpha</span>
         <span class="version-platforms">
           <span class="version-platform forge">Forge</span>
-          <span class="version-platform none">—</span>
+          <span class="version-platform none">-</span>
         </span>
         <span class="version-status deprecated">早期测试版</span>
       </div>
@@ -2275,7 +2297,7 @@ body {
         <span class="version-tag alpha">Alpha</span>
         <span class="version-platforms">
           <span class="version-platform forge">Forge</span>
-          <span class="version-platform none">—</span>
+          <span class="version-platform none">-</span>
         </span>
         <span class="version-status deprecated">早期测试版</span>
       </div>
@@ -2284,7 +2306,7 @@ body {
         <span class="version-tag alpha">Alpha</span>
         <span class="version-platforms">
           <span class="version-platform forge">Forge</span>
-          <span class="version-platform none">—</span>
+          <span class="version-platform none">-</span>
         </span>
         <span class="version-status deprecated">早期测试版</span>
       </div>
@@ -2293,7 +2315,7 @@ body {
         <span class="version-tag alpha">Alpha</span>
         <span class="version-platforms">
           <span class="version-platform forge">Forge</span>
-          <span class="version-platform none">—</span>
+          <span class="version-platform none">-</span>
         </span>
         <span class="version-status deprecated">初始版本</span>
       </div>
@@ -2643,19 +2665,18 @@ body {
   loop();
 })();
 
-/* ============ 导航栏滚动效果 ============ */
+/* ============ 导航栏滚动效果（rAF 节流） ============ */
 (function() {
   const navbar = document.getElementById('navbar');
-  const scrollHint = document.querySelector('.scroll-hint');
+  let ticking = false;
+  const onScroll = () => {
+    ticking = false;
+    if (window.scrollY > 50) navbar.classList.add('scrolled');
+    else navbar.classList.remove('scrolled');
+  };
   window.addEventListener('scroll', () => {
-    if (window.scrollY > 50) {
-      navbar.classList.add('scrolled');
-      if (scrollHint) scrollHint.classList.add('hidden');
-    } else {
-      navbar.classList.remove('scrolled');
-      if (scrollHint) scrollHint.classList.remove('hidden');
-    }
-  });
+    if (!ticking) { ticking = true; requestAnimationFrame(onScroll); }
+  }, { passive: true });
 })();
 
 /* ============ 滚动入场动画 (IntersectionObserver) ============ */
@@ -2794,7 +2815,7 @@ body {
         tick();
       }
 
-      // 淡入揭示（用于输出行）— 从左到右拉长展开
+      // 淡入揭示（用于输出行）- 从左到右拉长展开
       function revealLine(lineEl, html, done) {
         lineEl.innerHTML = html;
         lineEl.classList.add('stretched');

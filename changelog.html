@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Block ID — 更新日志与未来计划</title>
+<title>Block ID - 更新日志与未来计划</title>
 <link rel="icon" type="image/png" href="https://aka.doubaocdn.com/s/GaYX7u3vKU">
 <link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap">
 <style>
@@ -163,13 +163,13 @@ body {
 .hero {
   position: relative;
   z-index: 2;
-  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 120px 24px 80px;
+  padding: 96px 24px 72px;
   background-image:
     linear-gradient(180deg, rgba(238,241,245,0.72) 0%, rgba(238,241,245,0.85) 50%, rgba(238,241,245,0.97) 100%),
     url('https://aka.doubaocdn.com/s/5xh24jCRjS');
@@ -1925,7 +1925,7 @@ body {
 
 /* ============ 副网页专属样式 ============ */
 .changelog-hero {
-  padding: 170px 48px 60px;
+  padding: 96px 48px 64px;
   text-align: center;
 }
 .changelog-hero .hero-title {
@@ -1995,6 +1995,72 @@ body {
   .roadmap-grid { grid-template-columns: 1fr; }
 }
 
+
+
+/* ============ 设计精修 (design-taste-frontend) ============ */
+:root {
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-soft: cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+/* 标题字距精修 */
+.section-title,
+.roadmap-title,
+.download-card-title,
+.quick-nav-title {
+  letter-spacing: -0.015em;
+}
+
+/* 全局交互过渡统一（平滑） */
+button,
+.btn,
+a,
+.quick-nav-card,
+.download-card,
+.download-click-hint,
+.roadmap-card,
+.version-item {
+  transition-timing-function: var(--ease-out);
+}
+
+/* 按压物理反馈 */
+button:active,
+.btn:active,
+.quick-nav-card:active,
+.download-click-hint:active,
+.roadmap-card:active,
+.version-item:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+/* 卡片悬停精致提升 */
+.quick-nav-card:hover,
+.download-card:hover,
+.roadmap-card:hover {
+  box-shadow: 0 20px 48px rgba(2, 132, 199, 0.10);
+}
+
+/* 滚动入场更平滑 */
+.reveal {
+  transition-timing-function: var(--ease-out);
+}
+
+/* 键盘焦点可见性 */
+:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* 减少动效偏好：尊重系统设置 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 
 </style></head>
 <body>
@@ -2527,13 +2593,18 @@ body {
   loop();
 })();
 
-/* ============ 导航栏滚动效果 ============ */
+/* ============ 导航栏滚动效果（rAF 节流） ============ */
 (function() {
   const navbar = document.getElementById('navbar');
-  window.addEventListener('scroll', () => {
+  let ticking = false;
+  const onScroll = () => {
+    ticking = false;
     if (window.scrollY > 50) navbar.classList.add('scrolled');
     else navbar.classList.remove('scrolled');
-  });
+  };
+  window.addEventListener('scroll', () => {
+    if (!ticking) { ticking = true; requestAnimationFrame(onScroll); }
+  }, { passive: true });
 })();
 
 /* ============ 滚动入场动画 ============ */
