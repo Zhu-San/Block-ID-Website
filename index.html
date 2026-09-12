@@ -508,6 +508,22 @@ body {
   max-width: 1280px;
   margin: 0 auto;
 }
+#intro::before,
+#features::before,
+#demo::before,
+#install::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  z-index: -1;
+  background:
+    linear-gradient(180deg, rgba(238,241,245,0.90) 0%, rgba(238,241,245,0.97) 100%),
+    url('https://aka.doubaocdn.com/s/5xh24jCRjS') center / cover no-repeat;
+}
 .section-header {
   text-align: center;
   margin-bottom: 72px;
@@ -727,7 +743,9 @@ body {
 
 /* ============ 性能数据区 ============ */
 .perf-section {
-  background: linear-gradient(180deg, transparent, rgba(2,132,199,0.04), transparent);
+  background:
+    linear-gradient(180deg, rgba(238,241,245,0.90) 0%, rgba(2,132,199,0.04) 50%, rgba(238,241,245,0.96) 100%),
+    url('https://aka.doubaocdn.com/s/5xh24jCRjS') center / cover no-repeat;
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
 }
