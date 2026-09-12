@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Block ID - 更新日志与未来计划</title>
 <link rel="icon" type="image/png" href="https://aka.doubaocdn.com/s/GaYX7u3vKU">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#eef1f5">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0d1220">
+<link rel="preconnect" href="https://miaoda.feishu.cn" crossorigin>
+<link rel="preconnect" href="https://aka.doubaocdn.com" crossorigin>
+<link rel="dns-prefetch" href="https://miaoda.feishu.cn">
+<link rel="dns-prefetch" href="https://aka.doubaocdn.com">
 <link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap">
 <style>
 /* ============ 全局变量与重置 ============ */
@@ -82,7 +88,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transition: all 0.4s var(--ease-out);
+  transition: background-color .4s var(--ease-out), padding .4s var(--ease-out), box-shadow .4s var(--ease-out), border-color .4s var(--ease-out);
   background: transparent;
 }
 .navbar.scrolled {
@@ -279,7 +285,7 @@ body {
   border: 1px solid var(--border-light);
   background: var(--bg-card);
   color: var(--text-secondary);
-  transition: all 0.15s var(--ease-out);
+  transition: color .15s var(--ease-out), background-color .15s var(--ease-out), border-color .15s var(--ease-out), box-shadow .15s var(--ease-out), transform .15s var(--ease-out), opacity .15s var(--ease-out);
   box-shadow: var(--shadow-sm);
 }
 .hero-tag:hover {
@@ -318,7 +324,7 @@ body {
   gap: 10px;
   cursor: pointer;
   border: none;
-  transition: all 0.3s var(--ease-out);
+  transition: transform .3s var(--ease-out), box-shadow .3s var(--ease-out), border-color .3s var(--ease-out), color .3s var(--ease-out), background-color .3s var(--ease-out);
   position: relative;
   overflow: hidden;
 }
@@ -442,7 +448,7 @@ body {
   padding: 22px 18px;
   text-decoration: none;
   color: var(--text-primary);
-  transition: all 0.5s var(--ease-out);
+  transition: transform .5s var(--ease-out), box-shadow .5s var(--ease-out), border-color .5s var(--ease-out);
   box-shadow: var(--shadow-md);
   display: flex;
   flex-direction: column;
@@ -493,7 +499,7 @@ body {
 .quick-nav-arrow {
   opacity: 0;
   transform: translateX(-6px);
-  transition: all 0.15s var(--ease-out);
+  transition: color .15s var(--ease-out), background-color .15s var(--ease-out), border-color .15s var(--ease-out), box-shadow .15s var(--ease-out), transform .15s var(--ease-out), opacity .15s var(--ease-out);
   color: var(--cyan);
   flex-shrink: 0;
 }
@@ -595,7 +601,7 @@ body {
   border-radius: 12px;
   padding: 28px 24px;
   text-align: center;
-  transition: all 0.55s;
+  transition: transform .55s var(--ease-out), border-color .55s var(--ease-out), box-shadow .55s var(--ease-out);
   position: relative;
   overflow: hidden;
   box-shadow: var(--shadow-sm);
@@ -643,7 +649,7 @@ body {
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 36px 28px;
-  transition: all 0.4s var(--ease-out);
+  transition: transform .4s var(--ease-out), border-color .4s var(--ease-out), box-shadow .4s var(--ease-out);
   position: relative;
   overflow: hidden;
   box-shadow: var(--shadow-sm);
@@ -735,7 +741,7 @@ body {
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 28px 26px;
-  transition: all 0.15s var(--ease-out);
+  transition: color .15s var(--ease-out), background-color .15s var(--ease-out), border-color .15s var(--ease-out), box-shadow .15s var(--ease-out), transform .15s var(--ease-out), opacity .15s var(--ease-out);
   position: relative;
   overflow: hidden;
   box-shadow: var(--shadow-sm);
@@ -886,7 +892,7 @@ body {
   background: var(--bg-card);
   color: var(--text-secondary);
   cursor: pointer;
-  transition: all 0.15s var(--ease-out);
+  transition: color .15s var(--ease-out), background-color .15s var(--ease-out), border-color .15s var(--ease-out), box-shadow .15s var(--ease-out), transform .15s var(--ease-out), opacity .15s var(--ease-out);
   box-shadow: var(--shadow-sm);
 }
 .install-tab.active {
@@ -914,12 +920,11 @@ body {
   padding: 24px 0;
   border-bottom: 1px solid var(--border);
   align-items: flex-start;
-  transition: all 0.15s var(--ease-out);
+  transition: color .15s var(--ease-out), background-color .15s var(--ease-out), border-color .15s var(--ease-out), box-shadow .15s var(--ease-out), transform .15s var(--ease-out), opacity .15s var(--ease-out);
 }
 .install-step:last-child { border-bottom: none; }
-.install-step:hover {
-  padding-left: 12px;
-}
+.install-step:hover .step-content { transform: translateX(8px); }
+.step-content { transition: transform .15s var(--ease-out); }
 .step-number {
   flex-shrink: 0;
   width: 44px; height: 44px;
@@ -933,7 +938,7 @@ body {
   font-weight: 800;
   font-size: 18px;
   color: var(--cyan);
-  transition: all 0.15s var(--ease-out);
+  transition: color .15s var(--ease-out), background-color .15s var(--ease-out), border-color .15s var(--ease-out), box-shadow .15s var(--ease-out), transform .15s var(--ease-out), opacity .15s var(--ease-out);
   box-shadow: var(--shadow-sm);
 }
 .install-step:hover .step-number {
@@ -972,7 +977,7 @@ body {
   padding: 32px 36px;
   position: relative;
   overflow: hidden;
-  transition: all 0.55s;
+  transition: border-color .55s var(--ease-out), box-shadow .55s var(--ease-out);
   box-shadow: var(--shadow-sm);
 }
 .download-card::before {
@@ -1112,7 +1117,7 @@ body {
   color: var(--cyan);
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s var(--ease-out);
+  transition: color .15s var(--ease-out), background-color .15s var(--ease-out), border-color .15s var(--ease-out), box-shadow .15s var(--ease-out), transform .15s var(--ease-out), opacity .15s var(--ease-out);
   animation: hintPulse 2.6s ease-in-out infinite;
 }
 .download-click-hint:hover {
@@ -1204,7 +1209,7 @@ body {
   font-weight: 600;
   cursor: pointer;
   border: none;
-  transition: all 0.15s var(--ease-out);
+  transition: color .15s var(--ease-out), background-color .15s var(--ease-out), border-color .15s var(--ease-out), box-shadow .15s var(--ease-out), transform .15s var(--ease-out), opacity .15s var(--ease-out);
   font-family: var(--font-sans);
   white-space: nowrap;
 }
@@ -1237,7 +1242,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s var(--ease-out);
+  transition: color .15s var(--ease-out), background-color .15s var(--ease-out), border-color .15s var(--ease-out), box-shadow .15s var(--ease-out), transform .15s var(--ease-out), opacity .15s var(--ease-out);
   font-size: 16px;
   line-height: 1;
 }
@@ -1284,10 +1289,10 @@ body {
   gap: 14px;
   padding: 12px 0;
   border-bottom: 1px solid var(--border);
-  transition: all 0.15s var(--ease-out);
+  transition: color .15s var(--ease-out), background-color .15s var(--ease-out), border-color .15s var(--ease-out), box-shadow .15s var(--ease-out), transform .15s var(--ease-out), opacity .15s var(--ease-out);
 }
 .version-item:last-child { border-bottom: none; }
-.version-item:hover { padding-left: 8px; }
+.version-item:hover { transform: translateX(4px); }
 .version-number {
   font-family: var(--font-mono);
   font-size: 16px;
@@ -1410,7 +1415,7 @@ body {
   border: 1px solid #2a3145; background: #10131c;
   color: #9aa3b8; font-size: 18px; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  transition: all 0.15s var(--ease-out);
+  transition: color .15s var(--ease-out), background-color .15s var(--ease-out), border-color .15s var(--ease-out), box-shadow .15s var(--ease-out), transform .15s var(--ease-out), opacity .15s var(--ease-out);
 }
 .modal-close:hover { color: #f87171; border-color: #f87171; transform: rotate(90deg); }
 .modal-close:disabled { opacity: 0.3; cursor: not-allowed; }
@@ -1476,13 +1481,13 @@ body {
   border: 3px solid #4a8ad5;
   background: #10131c;
   display: flex; align-items: center; justify-content: center;
-  transition: all 0.15s var(--ease-out);
+  transition: color .15s var(--ease-out), background-color .15s var(--ease-out), border-color .15s var(--ease-out), box-shadow .15s var(--ease-out), transform .15s var(--ease-out), opacity .15s var(--ease-out);
   position: relative;
 }
 .ms-dot i {
   width: 9px; height: 9px; border-radius: 50%;
   background: #4a8ad5;
-  transition: all 0.15s var(--ease-out);
+  transition: color .15s var(--ease-out), background-color .15s var(--ease-out), border-color .15s var(--ease-out), box-shadow .15s var(--ease-out), transform .15s var(--ease-out), opacity .15s var(--ease-out);
 }
 .ms-body { display: flex; align-items: center; gap: 8px; min-width: 0; flex-wrap: wrap; }
 .ms-ver { font-size: 13px; color: #8b96ab; font-weight: 600; transition: color 0.3s; white-space: nowrap; }
@@ -1826,7 +1831,7 @@ body {
   border-radius: 12px;
   margin-bottom: 16px;
   overflow: hidden;
-  transition: all 0.15s var(--ease-out);
+  transition: color .15s var(--ease-out), background-color .15s var(--ease-out), border-color .15s var(--ease-out), box-shadow .15s var(--ease-out), transform .15s var(--ease-out), opacity .15s var(--ease-out);
   background: var(--bg-card);
   box-shadow: var(--shadow-sm);
 }
@@ -1863,7 +1868,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s var(--ease-out);
+  transition: color .15s var(--ease-out), background-color .15s var(--ease-out), border-color .15s var(--ease-out), box-shadow .15s var(--ease-out), transform .15s var(--ease-out), opacity .15s var(--ease-out);
 }
 .faq-item.open .faq-toggle {
   background: var(--cyan);
@@ -2362,8 +2367,99 @@ body {
   to { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
 
+/* ============ 排版布局 v3（Vercel Web Interface Guidelines · 只动排版布局，主题不变） ============ */
+:root {
+  --container-max: 1200px;
+  --gutter: clamp(20px, 5vw, 48px);
+  --section-y: clamp(72px, 9vw, 120px);
+  --header-h: 72px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root { color-scheme: dark; }
+}
+
+/* 触摸：消除双击缩放延迟与灰色点击高亮 */
+button, .btn, a, .hero-tag, .install-tab, .faq-question,
+.quick-nav-card, .feature-card, .stat-card, .download-card,
+.download-click-hint, .version-item, .metro-station {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 锚点定位：固定导航不遮挡标题 */
+section[id] { scroll-margin-top: calc(var(--header-h) + 16px); }
+
+/* 跳转到主要内容（仅键盘聚焦时可见） */
+.skip-link {
+  position: fixed;
+  top: 12px; left: 12px;
+  z-index: 400;
+  padding: 10px 20px;
+  border-radius: 8px;
+  background: var(--cyan);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transform: translateY(-160%);
+  transition: transform .25s var(--ease-out), box-shadow .25s var(--ease-out);
+  box-shadow: var(--shadow-lg);
+}
+.skip-link:focus-visible { transform: translateY(0); }
+
+/* ---- 排版系统 ---- */
+h1, h2, h3, h4 { text-wrap: balance; }
+p, li { text-wrap: pretty; overflow-wrap: break-word; }
+.hero-title { letter-spacing: -0.03em; }
+.section-title { letter-spacing: -0.025em; }
+.hero-subtitle { max-width: 30ch; margin-left: auto; margin-right: auto; }
+.hero-slogan, .hero-slogan2 { max-width: 46ch; margin-left: auto; margin-right: auto; }
+.intro-text p { max-width: 62ch; }
+.feature-desc, .step-content p { overflow-wrap: break-word; }
+/* 数字等宽，计数/数据不跳动 */
+.counter, .stat-number, .perf-value, .nav-version, .qq-num,
+.groupId, .hero-tag, .key-hint, .step-number, .ms-ver {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- 容器与垂直节奏 ---- */
+.section {
+  max-width: var(--container-max);
+  padding: var(--section-y) var(--gutter);
+}
+.section-header { margin-bottom: clamp(40px, 5.5vw, 68px); }
+.section-desc { max-width: 60ch; }
+.quick-nav {
+  max-width: var(--container-max);
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
+}
+.footer { padding-left: var(--gutter); padding-right: var(--gutter); }
+.footer-content { max-width: var(--container-max); }
+
+/* 网格间距随视口呼吸 */
+.intro-grid { gap: clamp(32px, 4vw, 56px); }
+.features-grid { gap: clamp(16px, 2.2vw, 24px); }
+.perf-grid { gap: 24px; }
+
+/* 弹性子项允许文本截断，避免长内容撑破布局 */
+.download-card-header > *,
+.feature-title,
+.version-item > * { min-width: 0; }
+code, .terminal-line { overflow-wrap: anywhere; }
+
+/* ---- 弹窗滚动容器：滚动不穿透到页面 ---- */
+.modal-body { overscroll-behavior: contain; }
+
+/* ---- 焦点态：粘性导航不遮挡聚焦元素 ---- */
+.section :focus-visible { scroll-margin-bottom: 24px; }
+
 </style></head>
 <body>
+
+<a class="skip-link" href="#changelog">跳到主要内容</a>
 
 <!-- 方块粒子背景 -->
 <canvas id="particle-canvas"></canvas>
@@ -2373,7 +2469,7 @@ body {
 <!-- ============ 导航栏 ============ -->
 <nav class="navbar" id="navbar">
   <a href="index.html" class="nav-logo">
-    <div class="nav-logo-icon"><img src="https://aka.doubaocdn.com/s/GaYX7u3vKU" alt="Block ID Logo"></div>
+    <div class="nav-logo-icon"><img src="https://aka.doubaocdn.com/s/GaYX7u3vKU" alt="Block ID Logo" width="36" height="36" fetchpriority="high"></div>
     <div class="nav-logo-text">Block<span>ID</span></div>
   </a>
   <ul class="nav-links">
@@ -3101,6 +3197,11 @@ body {
   });
   if (wi > 0) title.classList.add('split');
 })();
+
+/* ============ 装饰性图标对辅助技术隐藏（Vercel Web Interface Guidelines） ============ */
+document.querySelectorAll('a svg, button svg, .feature-icon svg, .quick-nav-icon svg').forEach(s => {
+  if (!s.hasAttribute('aria-label') && !s.hasAttribute('role')) s.setAttribute('aria-hidden', 'true');
+});
 
 </script>
 </body>
