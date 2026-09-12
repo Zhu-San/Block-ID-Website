@@ -464,22 +464,6 @@ body {
   max-width: 1280px;
   margin: 0 auto;
 }
-#intro::before,
-#features::before,
-#demo::before,
-#install::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100vw;
-  z-index: -1;
-  background:
-    linear-gradient(180deg, rgba(238,241,245,0.93) 0%, rgba(238,241,245,0.96) 100%),
-    url('https://aka.doubaocdn.com/s/5xh24jCRjS') center / cover no-repeat;
-}
 .section-header {
   text-align: center;
   margin-bottom: 72px;
@@ -699,9 +683,7 @@ body {
 
 /* ============ 性能数据区 ============ */
 .perf-section {
-  background:
-    linear-gradient(180deg, rgba(238,241,245,0.93) 0%, rgba(235,240,247,0.96) 100%),
-    url('https://aka.doubaocdn.com/s/5xh24jCRjS') center / cover no-repeat;
+  background: linear-gradient(180deg, rgba(2,132,199,0.035) 0%, transparent 60%);
 }
 .perf-grid {
   display: grid;
@@ -2586,7 +2568,7 @@ button:active,
   const canvas = document.getElementById('particle-canvas');
   const ctx = canvas.getContext('2d');
   let particles = [];
-  const COLORS = ['#0284c7', '#16a34a', '#d97706', '#64748b', '#0891b2'];
+  const COLORS = ['#0284c7', '#64748b', '#94a3b8', '#0ea5e9', '#16a34a', '#d97706'];
 
   function resize() {
     canvas.width = window.innerWidth;
@@ -2598,14 +2580,14 @@ button:active,
   class BlockParticle {
     constructor() { this.reset(true); }
     reset(initial) {
-      this.size = Math.random() * 20 + 8;
+      this.size = Math.random() * 18 + 4;
       this.x = Math.random() * canvas.width;
       this.y = initial ? Math.random() * canvas.height : canvas.height + this.size;
-      this.speedY = -(Math.random() * 0.5 + 0.2);
+      this.speedY = -(Math.random() * 0.38 + 0.10);
       this.speedX = (Math.random() - 0.5) * 0.3;
       this.rotation = Math.random() * Math.PI * 2;
       this.rotationSpeed = (Math.random() - 0.5) * 0.02;
-      this.opacity = Math.random() * 0.15 + 0.05;
+      this.opacity = Math.random() * 0.13 + 0.03;
       this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
       this.pulse = Math.random() * Math.PI * 2;
     }
@@ -2613,13 +2595,15 @@ button:active,
       this.y += this.speedY;
       this.x += this.speedX;
       this.rotation += this.rotationSpeed;
-      this.pulse += 0.02;
+      this.pulse += 0.014;
       if (this.y < -this.size) this.reset(false);
     }
     draw() {
       ctx.save();
       ctx.translate(this.x, this.y);
       ctx.rotate(this.rotation);
+      const breath = 0.88 + 0.12 * Math.sin(this.pulse * 2);
+      ctx.scale(breath, breath);
       ctx.globalAlpha = this.opacity * (0.7 + 0.3 * Math.sin(this.pulse));
       ctx.fillStyle = this.color;
       // 绘制像素方块（带内部网格线，模拟Minecraft方块）
@@ -2638,7 +2622,7 @@ button:active,
     }
   }
 
-  const count = Math.min(50, Math.floor(window.innerWidth / 30));
+  const count = Math.min(80, Math.floor(window.innerWidth / 26));
   for (let i = 0; i < count; i++) particles.push(new BlockParticle());
 
   function animate() {
