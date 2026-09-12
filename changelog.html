@@ -2078,9 +2078,10 @@ body {
   background: #10131c;
 }
 .changelog-box .modal-body {
-  overflow: visible;
+  overflow: hidden;
   max-height: none;
   padding: 16px 20px 24px;
+  transition: height 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* 移动端：地铁线保持竖排，线路在上、详情在下 */
@@ -2953,11 +2954,23 @@ body {
     const next = document.getElementById('mv-' + mv);
     if (!next) { switching = false; return; }
     const current = document.querySelector('.mpanel.active');
+    const body = document.querySelector('.changelog-box .modal-body');
     if (current && current !== next) {
+      const oldH = body ? body.scrollHeight : 0;
+      if (body) body.style.height = oldH + 'px';
       current.classList.add('leaving');
       setTimeout(() => {
         current.classList.remove('active', 'leaving');
         next.classList.add('active');
+        if (body) {
+          body.style.height = 'auto';
+          const newH = body.scrollHeight;
+          body.style.height = oldH + 'px';
+          requestAnimationFrame(() => {
+            body.style.height = newH + 'px';
+          });
+          setTimeout(() => { body.style.height = ''; }, 540);
+        }
         switching = false;
       }, 240);
     } else {
