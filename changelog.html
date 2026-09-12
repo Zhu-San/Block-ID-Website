@@ -1441,26 +1441,103 @@ body {
   border-color: #334155 !important;
   color: #64748b !important;
 }
-.modal-tabs {
-  display: flex; gap: 6px; padding: 10px 20px 0;
-  border-bottom: 1px solid #2a3145; flex-wrap: wrap;
+/* ============ 更新日志地铁线路图 ============ */
+.metro-line {
+  width: 300px; flex-shrink: 0;
+  padding: 26px 20px 30px 30px;
+  position: relative;
+  border-right: 1px solid #2a3145;
+  background: #10131c;
+  overflow: hidden;
 }
-.modal-tab {
-  padding: 5px 13px; border-radius: 9px 9px 0 0;
-  border: 1px solid transparent; background: transparent;
-  color: #6b7388; font-size: 12.5px; cursor: pointer;
-  transition: all 0.45s; font-weight: 500; border-bottom: 2px solid transparent;
+.metro-track {
+  position: absolute;
+  left: 45px; top: 24px; bottom: 22px;
+  width: 3px;
+  background: linear-gradient(180deg, #4a8ad5 0%, #38bdf8 55%, #a78bfa 100%);
+  border-radius: 2px;
+  opacity: 0.9;
 }
-.modal-tab:hover { color: #e8eaf0; background: rgba(74,138,213,0.06); }
-.modal-tab.active {
-  color: #6ba8f0; border-color: #2a3145; border-bottom-color: #4a8ad5;
-  background: rgba(74,138,213,0.08); font-weight: 600;
+.metro-track::after {
+  content: ''; position: absolute; left: 50%; bottom: 0;
+  transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 9px solid #a78bfa;
+  opacity: 0.7;
 }
-.modal-tab .tag {
-  font-size: 9.5px; padding: 1px 6px; border-radius: 5px;
-  background: rgba(74,138,213,0.18); color: #6ba8f0; margin-left: 5px; font-weight: 700;
+.metro-station {
+  display: flex; align-items: center; gap: 15px;
+  width: 100%; margin: 0 0 7px 0; padding: 7px 8px 7px 0;
+  background: transparent; border: none; cursor: pointer;
+  text-align: left; position: relative; z-index: 2;
+  font-family: var(--font-mono);
+  border-radius: 12px;
+  transition: background 0.45s cubic-bezier(0.22,1,0.36,1);
 }
-.modal-tab .tag.latest { background: #fbbf24; color: #0b0e14; }
+.metro-station:hover { background: rgba(74,138,213,0.07); }
+.ms-dot {
+  width: 28px; height: 28px; flex-shrink: 0;
+  border-radius: 50%;
+  border: 3px solid #4a8ad5;
+  background: #10131c;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.45s cubic-bezier(0.22,1,0.36,1);
+  position: relative;
+}
+.ms-dot i {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: #4a8ad5;
+  transition: all 0.45s cubic-bezier(0.22,1,0.36,1);
+}
+.ms-body { display: flex; align-items: center; gap: 8px; min-width: 0; flex-wrap: wrap; }
+.ms-ver { font-size: 13px; color: #8b96ab; font-weight: 600; transition: color 0.3s; white-space: nowrap; }
+.ms-tags { display: inline-flex; gap: 5px; }
+.metro-station .tag {
+  font-size: 9px; padding: 1px 6px; border-radius: 5px;
+  background: rgba(74,138,213,0.18); color: #6ba8f0; font-weight: 700; letter-spacing: 0.3px;
+}
+.metro-station .tag.latest { background: #fbbf24; color: #0b0e14; }
+/* 悬停 */
+.metro-station:hover .ms-dot {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 6px rgba(56,189,248,0.12), 0 0 20px rgba(56,189,248,0.35);
+  transform: scale(1.08);
+}
+.metro-station:hover .ms-dot i { background: #38bdf8; }
+.metro-station:hover .ms-ver { color: #e8eaf0; }
+/* 激活站点 */
+.metro-station.active {
+  background: rgba(56,189,248,0.08);
+}
+.metro-station.active .ms-dot {
+  border-color: #38bdf8; background: #0e2a3f;
+  box-shadow: 0 0 0 6px rgba(56,189,248,0.15), 0 0 24px rgba(56,189,248,0.4);
+}
+.metro-station.active .ms-dot i { background: #38bdf8; }
+.metro-station.active .ms-ver { color: #7dd3fc; }
+/* 最新版：金色站点 */
+.metro-station.latest .ms-dot { border-color: #fbbf24; }
+.metro-station.latest .ms-dot i { background: #fbbf24; }
+.metro-station.latest.active .ms-dot {
+  border-color: #fbbf24; background: #2a2005;
+  box-shadow: 0 0 0 6px rgba(251,191,36,0.15), 0 0 26px rgba(251,191,36,0.4);
+}
+.metro-station.latest.active .ms-dot i { background: #fbbf24; }
+.metro-station.latest.active .ms-ver { color: #fde68a; }
+/* 重大更新：换乘站样式（大节点 + 内环） */
+.metro-station.major .ms-dot { width: 34px; height: 34px; margin: -3px 0 -3px -3px; }
+.metro-station.major .ms-dot::after {
+  content: ''; position: absolute; inset: -7px;
+  border-radius: 50%;
+  border: 2px dashed rgba(74,138,213,0.45);
+  animation: metroSpin 16s linear infinite;
+}
+@keyframes metroSpin { to { transform: rotate(360deg); } }
+/* 终点站（历史版本） */
+.metro-station.end .ms-dot { border-radius: 50% 50% 6px 6px; }
+.metro-station.end .ms-ver { color: #64748b; font-size: 12px; }
 .modal-body {
   flex: 1; overflow-y: auto; padding: 14px 20px 20px;
   background: #161a24;
@@ -1961,16 +2038,46 @@ body {
   border-radius: 18px;
   overflow: hidden;
   box-shadow: 0 24px 60px rgba(15,23,42,0.16);
+  display: flex;
 }
-.changelog-box .modal-tabs {
+.changelog-box .metro-line {
   background: #10131c;
-  padding: 12px 20px 0;
 }
 .changelog-box .modal-body {
   overflow: visible;
   max-height: none;
   padding: 16px 20px 24px;
 }
+
+/* 移动端：地铁线横向滚动 */
+@media (max-width: 900px) {
+  .changelog-box { flex-direction: column; }
+  .changelog-box .metro-line {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #2a3145;
+    padding: 18px 16px 14px;
+    display: flex; gap: 4px;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+  .changelog-box .metro-track {
+    left: 16px; right: 16px; top: 33px; bottom: auto;
+    width: auto; height: 3px;
+    background: linear-gradient(90deg, #4a8ad5 0%, #38bdf8 55%, #a78bfa 100%);
+  }
+  .changelog-box .metro-track::after {
+    display: none;
+  }
+  .changelog-box .metro-station {
+    flex-direction: column; gap: 9px;
+    width: auto; flex-shrink: 0; padding: 4px 10px;
+    text-align: center;
+  }
+  .changelog-box .ms-body { flex-direction: column; gap: 4px; }
+  .changelog-box .ms-ver { white-space: nowrap; }
+}
+
 #roadmap .section-header,
 #roadmap .roadmap-grid {
   position: relative;
@@ -2248,15 +2355,49 @@ body {
     <p class="section-desc">所有版本的完整迭代记录，点击标签切换查看</p>
   </div>
   <div class="changelog-box reveal">
-    <div class="modal-tabs">
-      <button class="modal-tab active" data-mv="2.1.0">v2.1.0-Release <span class="tag latest">最新</span> <span class="tag">重大更新</span></button>
-      <button class="modal-tab" data-mv="2.0.3.2">v2.0.3.2 <span class="tag">重大更新</span></button>
-      <button class="modal-tab" data-mv="2.0.3.1">v2.0.3.1</button>
-      <button class="modal-tab" data-mv="2.0.3">v2.0.3</button>
-      <button class="modal-tab" data-mv="2.0.2">v2.0.2</button>
-      <button class="modal-tab" data-mv="2.0.1">v2.0.1</button>
-      <button class="modal-tab" data-mv="2.0.0">v2.0.0 <span class="tag">重大更新</span></button>
-      <button class="modal-tab" data-mv="history">历史版本</button>
+    <div class="metro-line">
+      <div class="metro-track"></div>
+      <button class="metro-station active latest major" data-mv="2.1.0">
+        <span class="ms-dot"><i></i></span>
+        <span class="ms-body">
+          <span class="ms-ver">v2.1.0-Release</span>
+          <span class="ms-tags"><span class="tag latest">最新</span><span class="tag">重大更新</span></span>
+        </span>
+      </button>
+      <button class="metro-station major" data-mv="2.0.3.2">
+        <span class="ms-dot"><i></i></span>
+        <span class="ms-body">
+          <span class="ms-ver">v2.0.3.2</span>
+          <span class="ms-tags"><span class="tag">重大更新</span></span>
+        </span>
+      </button>
+      <button class="metro-station" data-mv="2.0.3.1">
+        <span class="ms-dot"><i></i></span>
+        <span class="ms-body"><span class="ms-ver">v2.0.3.1</span></span>
+      </button>
+      <button class="metro-station" data-mv="2.0.3">
+        <span class="ms-dot"><i></i></span>
+        <span class="ms-body"><span class="ms-ver">v2.0.3</span></span>
+      </button>
+      <button class="metro-station" data-mv="2.0.2">
+        <span class="ms-dot"><i></i></span>
+        <span class="ms-body"><span class="ms-ver">v2.0.2</span></span>
+      </button>
+      <button class="metro-station" data-mv="2.0.1">
+        <span class="ms-dot"><i></i></span>
+        <span class="ms-body"><span class="ms-ver">v2.0.1</span></span>
+      </button>
+      <button class="metro-station major" data-mv="2.0.0">
+        <span class="ms-dot"><i></i></span>
+        <span class="ms-body">
+          <span class="ms-ver">v2.0.0</span>
+          <span class="ms-tags"><span class="tag">重大更新</span></span>
+        </span>
+      </button>
+      <button class="metro-station end" data-mv="history">
+        <span class="ms-dot"><i></i></span>
+        <span class="ms-body"><span class="ms-ver">历史版本</span></span>
+      </button>
     </div>
     <div class="modal-body">
 
@@ -2758,7 +2899,7 @@ body {
 
 /* ============ 更新日志 Tab 切换 ============ */
 (function() {
-  const tabs = document.querySelectorAll('.modal-tab');
+  const tabs = document.querySelectorAll('.metro-station');
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
       const mv = tab.dataset.mv;
