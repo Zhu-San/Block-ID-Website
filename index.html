@@ -3212,10 +3212,29 @@ function downloadQQ() {
   let hasAgreed = false;
   let scrolledToBottom = false;
   let isAutoShow = false;
+  let countLeft = 0;
+  let timerId = null;
+  const READ_LOCK_SECONDS = 10;
+
+  function clearCountdown() {
+    if (timerId) { clearInterval(timerId); timerId = null; }
+    countLeft = 0;
+  }
+
+  function startCountdown() {
+    clearCountdown();
+    countLeft = READ_LOCK_SECONDS;
+    updateBtnState();
+    timerId = setInterval(() => {
+      countLeft--;
+      updateBtnState();
+      if (countLeft <= 0) clearCountdown();
+    }, 1000);
+  }
 
   function updateBtnState() {
     if (hasAgreed) return;
-    if (scrolledToBottom) {
+    if (scrolledToBottom && countLeft <= 0) {
       closeBtn.disabled = false;
       agreeBtn.disabled = false;
       agreeBtn.textContent = '我已阅读并同意以上协议';
@@ -3223,7 +3242,11 @@ function downloadQQ() {
     } else {
       closeBtn.disabled = true;
       agreeBtn.disabled = true;
-      agreeBtn.textContent = '我已阅读并同意以上协议';
+      if (countLeft > 0) {
+        agreeBtn.textContent = '请先阅读协议（' + countLeft + 's）';
+      } else {
+        agreeBtn.textContent = '请滚动至底部阅读完整协议';
+      }
     }
   }
   function openModal(autoShow) {
@@ -3235,8 +3258,9 @@ function downloadQQ() {
       scrolledToBottom = false;
       modalBody.scrollTop = 0;
       scrollTip.style.display = 'block';
-      updateBtnState();
+      startCountdown();
     } else {
+      clearCountdown();
       closeBtn.style.display = 'flex';
       closeBtn.disabled = false;
       agreeBtn.disabled = false;
@@ -3249,6 +3273,7 @@ function downloadQQ() {
     modal.classList.remove('open');
     document.body.style.overflow = '';
     isAutoShow = false;
+    clearCountdown();
   }
   function checkScroll() {
     if (hasAgreed) return;
