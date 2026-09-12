@@ -7,7 +7,7 @@
 <link rel="icon" type="image/png" href="https://aka.doubaocdn.com/s/GaYX7u3vKU">
 <link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap">
 <style>
-/* ============ 全局变量与重置 ============ */
+
 :root {
   --bg-deep: #eef1f5;
   --bg-panel: #ffffff;
@@ -43,7 +43,7 @@ body {
   line-height: 1.7;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
-  /* 现代建筑网格底纹（类似建筑图纸/幕墙分格） */
+  
   background-image:
     linear-gradient(rgba(15,23,42,0.025) 1px, transparent 1px),
     linear-gradient(90deg, rgba(15,23,42,0.025) 1px, transparent 1px);
@@ -52,7 +52,6 @@ body {
 
 ::selection { background: var(--cyan); color: #fff; }
 
-/* ============ 方块粒子背景 Canvas ============ */
 #particle-canvas {
   position: fixed;
   top: 0; left: 0;
@@ -61,7 +60,6 @@ body {
   pointer-events: none;
 }
 
-/* 鼠标跟随光晕 */
 #cursor-glow {
   position: fixed;
   width: 500px; height: 500px;
@@ -73,7 +71,6 @@ body {
   transition: opacity 0.5s;
 }
 
-/* ============ 导航栏 ============ */
 .navbar {
   position: fixed;
   top: 0; left: 0; right: 0;
@@ -159,7 +156,6 @@ body {
   background: rgba(217,119,6,0.08);
 }
 
-/* ============ Hero 区 ============ */
 .hero {
   position: relative;
   z-index: 2;
@@ -371,7 +367,6 @@ body {
   box-shadow: var(--shadow-md);
 }
 
-/* 滚动提示 */
 .scroll-hint {
   position: absolute;
   bottom: 32px;
@@ -420,7 +415,6 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* ============ 快速跳转卡 ============ */
 .quick-nav {
   position: relative;
   z-index: 3;
@@ -500,7 +494,6 @@ body {
   transform: translateX(0);
 }
 
-/* ============ 通用 Section ============ */
 .section {
   position: relative;
   z-index: 2;
@@ -544,7 +537,6 @@ body {
   margin: 0 auto;
 }
 
-/* 滚动入场动画 */
 .reveal {
   opacity: 0;
   transform: translateY(40px);
@@ -561,7 +553,6 @@ body {
 .reveal-delay-4 { transition-delay: 0.4s; }
 .reveal-delay-5 { transition-delay: 0.5s; }
 
-/* ============ 模组简介区 ============ */
 .intro-grid {
   display: grid;
   grid-template-columns: 1.2fr 1fr;
@@ -630,7 +621,6 @@ body {
   font-family: var(--font-mono);
 }
 
-/* ============ 功能卡片区 ============ */
 .features-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -721,7 +711,7 @@ body {
   color: var(--cyan-dim);
   border: 1px solid var(--border);
 }
-/* ============ 未来规划区 ============ */
+
 .roadmap-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -815,8 +805,6 @@ body {
 .roadmap-card:nth-child(2) .roadmap-list li::before { background: var(--green); }
 .roadmap-card:nth-child(3) .roadmap-list li::before { background: var(--gold); }
 
-
-/* ============ 性能数据区 ============ */
 .perf-section {
   background: linear-gradient(180deg, transparent, rgba(2,132,199,0.04), transparent);
   border-top: 1px solid var(--border);
@@ -867,7 +855,6 @@ body {
   transition: width 1.8s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* ============ 安装指南区 ============ */
 .install-tabs {
   display: flex;
   justify-content: center;
@@ -960,7 +947,6 @@ body {
   border: 1px solid var(--border);
 }
 
-/* ============ 下载来源卡片 ============ */
 .download-card {
   max-width: 720px;
   margin: 0 auto 48px;
@@ -1140,7 +1126,6 @@ body {
   60% { transform: translateY(0) scale(0.95); }
 }
 
-/* ============ Toast 提示 ============ */
 .toast-overlay {
   position: fixed;
   bottom: 32px;
@@ -1249,7 +1234,6 @@ body {
   color: #e2e8f0;
 }
 
-/* ============ 版本历史 ============ */
 .version-history {
   max-width: 720px;
   margin: 0 auto 48px;
@@ -1376,7 +1360,6 @@ body {
 }
 .version-footnote strong { color: var(--gold); font-weight: 600; }
 
-/* ============ 更新日志弹窗 ============ */
 .changelog-link-btn { color: var(--accent); }
 .nav-changelog-link { color: var(--accent-2, var(--text-secondary)); position: relative; }
 .changelog-badge {
@@ -1441,7 +1424,7 @@ body {
   border-color: #334155 !important;
   color: #64748b !important;
 }
-/* ============ 更新日志地铁线路图 ============ */
+
 .metro-line {
   width: 300px; flex-shrink: 0;
   padding: 26px 20px 30px 30px;
@@ -1499,7 +1482,7 @@ body {
   background: rgba(74,138,213,0.18); color: #6ba8f0; font-weight: 700; letter-spacing: 0.3px;
 }
 .metro-station .tag.latest { background: #fbbf24; color: #0b0e14; }
-/* 悬停 */
+
 .metro-station:hover .ms-dot {
   border-color: #38bdf8;
   box-shadow: 0 0 0 6px rgba(56,189,248,0.12), 0 0 20px rgba(56,189,248,0.35);
@@ -1507,7 +1490,7 @@ body {
 }
 .metro-station:hover .ms-dot i { background: #38bdf8; }
 .metro-station:hover .ms-ver { color: #e8eaf0; }
-/* 激活站点 */
+
 .metro-station.active {
   background: rgba(56,189,248,0.08);
 }
@@ -1517,7 +1500,7 @@ body {
 }
 .metro-station.active .ms-dot i { background: #38bdf8; }
 .metro-station.active .ms-ver { color: #7dd3fc; }
-/* 最新版：金色站点 */
+
 .metro-station.latest .ms-dot { border-color: #fbbf24; }
 .metro-station.latest .ms-dot i { background: #fbbf24; }
 .metro-station.latest.active .ms-dot {
@@ -1526,7 +1509,7 @@ body {
 }
 .metro-station.latest.active .ms-dot i { background: #fbbf24; }
 .metro-station.latest.active .ms-ver { color: #fde68a; }
-/* 重大更新：换乘站样式（大节点 + 内环） */
+
 .metro-station.major .ms-dot { width: 34px; height: 34px; margin: -3px 0 -3px -3px; }
 .metro-station.major .ms-dot::after {
   content: ''; position: absolute; inset: -7px;
@@ -1536,7 +1519,6 @@ body {
 }
 @keyframes metroSpin { to { transform: rotate(360deg); } }
 
-/* 地铁列车到站指示 */
 .metro-train {
   position: absolute;
   left: 50%;
@@ -1550,7 +1532,7 @@ body {
   z-index: 3;
   pointer-events: none;
 }
-/* 激活站点脉冲光环 */
+
 .metro-station.active .ms-dot::before {
   content: '';
   position: absolute;
@@ -1567,7 +1549,7 @@ body {
   70% { transform: scale(1.45); opacity: 0; }
   100% { opacity: 0; }
 }
-/* 终点站（历史版本） */
+
 .metro-station.end .ms-dot { border-radius: 50% 50% 6px 6px; }
 .metro-station.end .ms-ver { color: #64748b; font-size: 12px; }
 .modal-body {
@@ -1673,7 +1655,6 @@ body {
   .msection { padding: 16px; }
 }
 
-/* Hero 区闭源提示 */
 .hero-open-notice {
   margin-top: 20px;
   display: inline-flex;
@@ -1703,7 +1684,7 @@ body {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.5; transform: scale(0.8); }
 }
-/* Hero 区下载提示 */
+
 .hero-download-hint {
   margin-top: 28px;
   font-family: var(--font-mono);
@@ -1718,7 +1699,6 @@ body {
   font-size: 15px;
 }
 
-/* ============ 终端演示区 ============ */
 .terminal-section {
   max-width: 900px;
 }
@@ -1740,7 +1720,7 @@ body {
   0%, 100% { box-shadow: 0 12px 40px rgba(2,132,199,0.08); }
   50% { box-shadow: 0 16px 60px rgba(2,132,199,0.18); }
 }
-/* 扫描线效果 */
+
 .terminal::after {
   content: '';
   position: absolute;
@@ -1840,7 +1820,6 @@ body {
   animation: cursorBlink 0.8s step-end infinite;
 }
 
-/* ============ FAQ 区 ============ */
 .faq-list {
   max-width: 800px;
   margin: 0 auto;
@@ -1930,9 +1909,6 @@ body {
   border: 1px solid var(--border);
 }
 
-
-
-/* ============ 原版介绍图展示区 ============ */
 .preview-section {
   text-align: center;
 }
@@ -1959,7 +1935,6 @@ body {
   color: var(--text-muted);
 }
 
-/* ============ Footer ============ */
 .footer {
   position: relative;
   z-index: 2;
@@ -1998,7 +1973,6 @@ body {
   text-decoration: none;
 }
 
-/* ============ 响应式 ============ */
 @media (max-width: 968px) {
   .navbar { padding: 14px 24px; }
   .nav-links { display: none; }
@@ -2021,7 +1995,6 @@ body {
   .hero-tag { font-size: 11px; padding: 4px 10px; }
 }
 
-/* 尊重 reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -2032,9 +2005,6 @@ body {
   #cursor-glow { display: none; }
 }
 
-
-
-/* ============ 副网页专属样式 ============ */
 .changelog-hero {
   padding: 96px 48px 64px;
   text-align: center;
@@ -2084,7 +2054,6 @@ body {
   transition: height 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* 移动端：地铁线保持竖排，线路在上、详情在下 */
 @media (max-width: 900px) {
   .changelog-box { flex-direction: column; }
   .changelog-box .metro-line {
@@ -2122,15 +2091,11 @@ body {
   .roadmap-grid { grid-template-columns: 1fr; }
 }
 
-
-
-/* ============ 设计精修 (design-taste-frontend) ============ */
 :root {
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-soft: cubic-bezier(0.33, 1, 0.68, 1);
 }
 
-/* 标题字距精修 */
 .section-title,
 .roadmap-title,
 .download-card-title,
@@ -2138,7 +2103,6 @@ body {
   letter-spacing: -0.015em;
 }
 
-/* 全局交互过渡统一（平滑） */
 button,
 .btn,
 a,
@@ -2150,7 +2114,6 @@ a,
   transition-timing-function: var(--ease-out);
 }
 
-/* 按压物理反馈 */
 button:active,
 .btn:active,
 .quick-nav-card:active,
@@ -2160,26 +2123,22 @@ button:active,
   transform: translateY(1px) scale(0.98);
 }
 
-/* 卡片悬停精致提升 */
 .quick-nav-card:hover,
 .download-card:hover,
 .roadmap-card:hover {
   box-shadow: 0 20px 48px rgba(2, 132, 199, 0.10);
 }
 
-/* 滚动入场更平滑 */
 .reveal {
   transition-timing-function: var(--ease-out);
 }
 
-/* 键盘焦点可见性 */
 :focus-visible {
   outline: 2px solid var(--cyan);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
-/* 减少动效偏好：尊重系统设置 */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -2189,9 +2148,6 @@ button:active,
   }
 }
 
-
-
-/* ============ 浅色主题精修（立体感与高级感） ============ */
 @media (prefers-color-scheme: light), (prefers-color-scheme: no-preference) {
 :root {
   --shadow-sm: 0 1px 2px rgba(15,23,42,0.05), 0 3px 10px rgba(15,23,42,0.04);
@@ -2199,7 +2155,6 @@ button:active,
   --shadow-lg: 0 4px 10px rgba(15,23,42,0.06), 0 30px 64px rgba(15,23,42,0.13);
 }
 
-/* 页面顶部柔光，向下渐沉 */
 body {
   background-image:
     radial-gradient(1000px 500px at 50% -5%, rgba(255,255,255,0.8) 0%, transparent 65%),
@@ -2208,12 +2163,10 @@ body {
   background-size: auto, 48px 48px, 48px 48px;
 }
 
-/* hero 顶部聚焦光晕 */
 .hero::before {
   background: radial-gradient(ellipse 100% 75% at 50% -5%, rgba(255,255,255,0.5) 0%, transparent 70%);
 }
 
-/* 卡片顶部高光（纸张质感） */
 .quick-nav-card,
 .roadmap-card,
 .stat-card,
@@ -2221,7 +2174,6 @@ body {
   background-image: linear-gradient(180deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 30%);
 }
 
-/* 卡片悬停：轻微上浮 + 层次青色阴影 */
 .quick-nav-card:hover,
 .roadmap-card:hover,
 .stat-card:hover {
@@ -2229,30 +2181,25 @@ body {
   box-shadow: 0 2px 6px rgba(15,23,42,0.06), 0 24px 48px rgba(2,132,199,0.10);
 }
 
-/* FAQ 悬停：柔和层次（不上浮，避免干扰展开交互） */
 .faq-item:hover {
   box-shadow: 0 2px 6px rgba(15,23,42,0.05), 0 16px 32px rgba(15,23,42,0.07);
 }
 
-/* 下载卡：青色层次阴影 + 内高光 */
 .download-card {
   box-shadow: 0 2px 6px rgba(2,132,199,0.05), 0 18px 44px rgba(2,132,199,0.10), inset 0 1px 0 rgba(255,255,255,0.5);
 }
 
-/* 主按钮立体：顶部高光 + 层次青色阴影 + 内高光 */
 .btn-primary {
   background: linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 48%), linear-gradient(135deg, var(--cyan), var(--cyan-dim));
   box-shadow: 0 1px 2px rgba(2,132,199,0.35), 0 10px 24px rgba(2,132,199,0.28), inset 0 1px 0 rgba(255,255,255,0.22);
 }
 
-/* 次级按钮立体 */
 .btn-secondary {
   box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 8px 20px rgba(15,23,42,0.06), inset 0 1px 0 rgba(255,255,255,0.6);
 }
 
 }
 
-/* ============ 暗色模式（跟随系统主题） ============ */
 @media (prefers-color-scheme: dark) {
   :root {
     --bg-deep: #0d1220;
@@ -2282,7 +2229,7 @@ body {
       linear-gradient(90deg, rgba(255,255,255,0.026) 1px, transparent 1px);
   }
 
-  /* hero：深色遮罩保留背景图 */
+  
   .hero {
     background-image:
       linear-gradient(180deg, rgba(9,14,25,0.82) 0%, rgba(9,14,25,0.90) 50%, rgba(13,18,32,0.98) 100%),
@@ -2336,12 +2283,10 @@ body {
 </style></head>
 <body>
 
-<!-- 方块粒子背景 -->
 <canvas id="particle-canvas"></canvas>
-<!-- 鼠标光晕 -->
+
 <div id="cursor-glow"></div>
 
-<!-- ============ 导航栏 ============ -->
 <nav class="navbar" id="navbar">
   <a href="index.html" class="nav-logo">
     <div class="nav-logo-icon"><img src="https://aka.doubaocdn.com/s/GaYX7u3vKU" alt="Block ID Logo"></div>
@@ -2357,7 +2302,6 @@ body {
   <div class="nav-version">v2.1.0-Release</div>
 </nav>
 
-<!-- ============ Hero 区 ============ -->
 <section class="hero changelog-hero">
   <div class="hero-badge">
     <span class="dot"></span>
@@ -2381,7 +2325,6 @@ body {
   </div>
 </section>
 
-<!-- ============ 更新日志 ============ -->
 <section class="section" id="changelog">
   <div class="section-header reveal">
     <div class="section-label">CHANGELOG</div>
@@ -2435,7 +2378,7 @@ body {
     </div>
     <div class="modal-body">
 
-      <!-- v2.1.0 -->
+      
       <div class="mpanel active" id="mv-2.1.0">
         <div class="mv-header latest">
           <div class="mv-top">
@@ -2495,7 +2438,7 @@ body {
         </div>
       </div>
 
-      <!-- v2.0.3.2 -->
+      
       <div class="mpanel" id="mv-2.0.3.2">
         <div class="mv-header">
           <div class="mv-top">
@@ -2533,7 +2476,7 @@ body {
         </div>
       </div>
 
-      <!-- v2.0.3.1 -->
+      
       <div class="mpanel" id="mv-2.0.3.1">
         <div class="mv-header">
           <div class="mv-top">
@@ -2554,7 +2497,7 @@ body {
         </div>
       </div>
 
-      <!-- v2.0.3 -->
+      
       <div class="mpanel" id="mv-2.0.3">
         <div class="mv-header">
           <div class="mv-top">
@@ -2581,7 +2524,7 @@ body {
         </div>
       </div>
 
-      <!-- v2.0.2 -->
+      
       <div class="mpanel" id="mv-2.0.2">
         <div class="mv-header">
           <div class="mv-top">
@@ -2624,7 +2567,7 @@ body {
         </div>
       </div>
 
-      <!-- v2.0.1 -->
+      
       <div class="mpanel" id="mv-2.0.1">
         <div class="mv-header">
           <div class="mv-top">
@@ -2646,7 +2589,7 @@ body {
         </div>
       </div>
 
-      <!-- v2.0.0 -->
+      
       <div class="mpanel" id="mv-2.0.0">
         <div class="mv-header">
           <div class="mv-top">
@@ -2705,7 +2648,7 @@ body {
         </div>
       </div>
 
-      <!-- 历史版本 -->
+      
       <div class="mpanel" id="mv-history">
         <div class="mv-header">
           <div class="mv-top">
@@ -2731,13 +2674,10 @@ body {
         </div>
       </div>
 
-
     </div>
   </div>
 </section>
 
-<!-- ============ 未来规划 ============ -->
-<!-- ============ 未来规划 ============ -->
 <section class="section" id="roadmap">
   <div class="section-header reveal">
     <div class="section-label">ROADMAP</div>
@@ -2804,7 +2744,6 @@ body {
   </div>
 </section>
 
-<!-- ============ Footer ============ -->
 <footer class="footer">
   <div class="footer-content">
     <div class="footer-info">
