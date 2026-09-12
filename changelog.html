@@ -2049,32 +2049,31 @@ body {
   padding: 16px 20px 24px;
 }
 
-/* 移动端：地铁线横向滚动 */
+/* 移动端：地铁线保持竖排，线路在上、详情在下 */
 @media (max-width: 900px) {
   .changelog-box { flex-direction: column; }
   .changelog-box .metro-line {
     width: 100%;
     border-right: none;
     border-bottom: 1px solid #2a3145;
-    padding: 18px 16px 14px;
-    display: flex; gap: 4px;
-    overflow-x: auto;
-    overflow-y: hidden;
+    padding: 20px 18px;
+    display: block;
   }
   .changelog-box .metro-track {
-    left: 16px; right: 16px; top: 33px; bottom: auto;
-    width: auto; height: 3px;
-    background: linear-gradient(90deg, #4a8ad5 0%, #38bdf8 55%, #a78bfa 100%);
+    left: 45px; top: 18px; bottom: 18px;
+    width: 3px;
+    background: linear-gradient(180deg, #4a8ad5 0%, #38bdf8 55%, #a78bfa 100%);
   }
   .changelog-box .metro-track::after {
-    display: none;
+    display: block;
   }
   .changelog-box .metro-station {
-    flex-direction: column; gap: 9px;
-    width: auto; flex-shrink: 0; padding: 4px 10px;
-    text-align: center;
+    flex-direction: row;
+    width: 100%;
+    padding: 6px 8px 6px 0;
+    text-align: left;
   }
-  .changelog-box .ms-body { flex-direction: column; gap: 4px; }
+  .changelog-box .ms-body { flex-direction: row; gap: 8px; }
   .changelog-box .ms-ver { white-space: nowrap; }
 }
 
