@@ -1849,6 +1849,65 @@ button:active,
 }
 
 
+
+/* ============ 浅色主题精修（立体感与高级感） ============ */
+:root {
+  --shadow-sm: 0 1px 2px rgba(15,23,42,0.05), 0 3px 10px rgba(15,23,42,0.04);
+  --shadow-md: 0 2px 5px rgba(15,23,42,0.05), 0 14px 30px rgba(15,23,42,0.08);
+  --shadow-lg: 0 4px 10px rgba(15,23,42,0.06), 0 30px 64px rgba(15,23,42,0.13);
+}
+
+/* 页面顶部柔光，向下渐沉 */
+body {
+  background-image:
+    radial-gradient(1000px 500px at 50% -5%, rgba(255,255,255,0.8) 0%, transparent 65%),
+    linear-gradient(rgba(15,23,42,0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15,23,42,0.022) 1px, transparent 1px);
+  background-size: auto, 48px 48px, 48px 48px;
+}
+
+/* hero 顶部聚焦光晕 */
+.hero::before {
+  background: radial-gradient(ellipse 100% 75% at 50% -5%, rgba(255,255,255,0.5) 0%, transparent 70%);
+}
+
+/* 卡片顶部高光（纸张质感） */
+.quick-nav-card,
+.roadmap-card,
+.stat-card,
+.faq-item {
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 30%);
+}
+
+/* 卡片悬停：轻微上浮 + 层次青色阴影 */
+.quick-nav-card:hover,
+.roadmap-card:hover,
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 2px 6px rgba(15,23,42,0.06), 0 24px 48px rgba(2,132,199,0.10);
+}
+
+/* FAQ 悬停：柔和层次（不上浮，避免干扰展开交互） */
+.faq-item:hover {
+  box-shadow: 0 2px 6px rgba(15,23,42,0.05), 0 16px 32px rgba(15,23,42,0.07);
+}
+
+/* 下载卡：青色层次阴影 + 内高光 */
+.download-card {
+  box-shadow: 0 2px 6px rgba(2,132,199,0.05), 0 18px 44px rgba(2,132,199,0.10), inset 0 1px 0 rgba(255,255,255,0.5);
+}
+
+/* 主按钮立体：顶部高光 + 层次青色阴影 + 内高光 */
+.btn-primary {
+  background: linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 48%), linear-gradient(135deg, var(--cyan), var(--cyan-dim));
+  box-shadow: 0 1px 2px rgba(2,132,199,0.35), 0 10px 24px rgba(2,132,199,0.28), inset 0 1px 0 rgba(255,255,255,0.22);
+}
+
+/* 次级按钮立体 */
+.btn-secondary {
+  box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 8px 20px rgba(15,23,42,0.06), inset 0 1px 0 rgba(255,255,255,0.6);
+}
+
 /* ============ 暗色模式（跟随系统主题） ============ */
 @media (prefers-color-scheme: dark) {
   :root {
@@ -1923,6 +1982,10 @@ button:active,
   .modal-box,
   .modal-overlay {
     box-shadow: 0 24px 64px rgba(0,0,0,0.55);
+  }
+
+  .hero::before {
+    background: radial-gradient(ellipse 100% 75% at 50% -5%, rgba(56,189,248,0.10) 0%, transparent 70%);
   }
 }
 
